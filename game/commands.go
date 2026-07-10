@@ -12,7 +12,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 	defer g.Mutex.Unlock()
 
 	if len(parts) < 2 {
-		return "ERR missing_name"
+		return "ERR 202 MISSING_NAME"
 	}
 
 	name := parts[1]
@@ -23,7 +23,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 	}
 
 	if g.Clients[conn].Player != nil {
-		return "ERR client already have a player"
+		return "ERR 203 ALREADY_CONNECTED"
 	}
 
 	g.Players[name] = &Player{ // creates the player
@@ -75,7 +75,7 @@ func (g *Game) Who(conn net.Conn) string {
 
 func (g *Game) Move(conn net.Conn, parts []string) string {
 	if len(parts) < 2 {
-		return "ERR missing_direction"
+		return "ERR 302 MISSING_DIRECTION"
 	}
 	direction := parts[1]
 	return "OK room= " + direction
@@ -83,7 +83,7 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 
 func (g *Game) Chat(conn net.Conn, parts []string) string {
 	if len(parts) < 2 {
-		return "ERR missing_message"
+		return "ERR 407 MISSING_MESSAGE"
 	}
 	message := strings.Join(parts[1:], " ")
 	return "OK chat=" + message
@@ -94,7 +94,7 @@ func (g *Game) Talk(conn net.Conn, parts []string) string {
 	defer g.Mutex.Unlock()
 
 	if parts[0] == "TALK" && len(parts) < 2 {
-		return "ERR missing_message"
+		return "ERR 407 MISSING_MESSAGE"
 	}
 
 	test := strings.Join(parts, " ")
@@ -139,7 +139,7 @@ func (g *Game) Take(conn net.Conn, parts []string) string {
 	player_room := g.Clients[conn].Player.Room
 	room := g.Rooms[player_room]
 	if len(parts) < 2 {
-		return "ERR missing item name"
+		return "ERR 407 MISSING_ITEM_NAME"
 	}
 	item := strings.Join(parts[1:], " ")
 	_, ok := room.Items[item]
@@ -155,7 +155,7 @@ func (g *Game) Drop(conn net.Conn, parts []string) string {
 	player_room := g.Clients[conn].Player.Room
 	room := g.Rooms[player_room]
 	if len(parts) < 2 {
-		return "ERR missing item name"
+		return "ERR 407 MISSING_ITEM_NAME"
 	}
 	item := strings.Join(parts[1:], " ")
 	_, ok := g.Clients[conn].Player.Inventory[item]
@@ -171,7 +171,7 @@ func (g *Game) Drop(conn net.Conn, parts []string) string {
 
 func (g *Game) Group(conn net.Conn, parts []string) string {
 	if len(parts) < 2 {
-		return "ERR missing argument"
+		return "ERR 407 MISSING_ARGUMENT"
 	}
 	switch parts[1] {
 	case "CREATE":
@@ -194,7 +194,7 @@ func (g *Game) GroupCreate(conn net.Conn, parts []string) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
 	if player.Group != nil {
-		return "ERR already in a group"
+		return "ERR 402 ALREADY_IN_GROUP"
 	}
 	group_name := player_name + "party"
 	g.Groups[group_name] = &Group{
@@ -212,20 +212,20 @@ func (g *Game) GroupInvite(conn net.Conn, parts []string) string {
 	player := g.Players[player_name]
 
 	if len(parts) < 3 {
-		return "ERR missing player name"
+		return "ERR 407 MISSING_PLAYER_NAME"
 	}
 
 	if player.Group == nil {
-		return "ERR not in a group"
+		return "ERR 401 NOT_IN_GROUP"
 	}
 
 	if parts[2] == player_name {
-		return "ERR can't invite yourself"
+		return "ERR 408 AUTO_INVITE"
 	}
 
 	_, ok := g.Players[parts[2]]
 	if !ok {
-		return "ERR player not found"
+		return "ERR 409 PLAYER_NOT_FOUND"
 	}
 	var invite_conn net.Conn
 	var invite_name string
@@ -251,11 +251,11 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 	player := g.Players[player_name]
 
 	if len(parts) < 3 {
-		return "ERR missing group name"
+		return "ERR 407 MISSING_GROUP_NAME"
 	}
 
 	if player.Invites == nil {
-		return "ERR no invitation pending"
+		return "ERR 410 NO_INVITES"
 	}
 
 	var is_valid bool
@@ -288,7 +288,7 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 		player.Group = group
 		return "OK group=" + parts[2]
 	}
-	return "ERR invalid invitaion"
+	return "ERR 411 INVALID_INVITE"
 }
 
 func (g *Game) GroupLeave(conn net.Conn, parts []string) string {
