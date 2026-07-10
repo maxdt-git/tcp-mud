@@ -95,7 +95,7 @@ func (g *Game) Chat(conn net.Conn, parts []string) string {
 		return g.ChatRoom(conn, parts)
 
 	case "GROUP":
-		return g.GroupJoin(conn, parts)
+		return g.ChatGroup(conn, parts)
 	}
 	return "ERR 407 WRONG ARGUMENT"
 }
@@ -132,6 +132,33 @@ func (g *Game) ChatRoom(conn net.Conn, parts []string) string {
 		if g.Clients[i].Player.Name != player_name {
 			if g.Clients[i].Player.Room == player_room {
 				fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM CHAT "+player_name+": "+message)
+			}
+		}
+	}
+
+	return "OK"
+}
+
+func (g *Game) ChatGroup(conn net.Conn, parts []string) string {
+	if len(parts) < 3 {
+		return "ERROR 407 MISSING_MESSAGE"
+	}
+
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+
+	if player.Group == nil {
+		return "ERR 401 NOT_IN_GROUP"
+	}
+
+	player_group_name := g.Players[player_name].Group.ID
+
+	message := strings.Join(parts[2:], " ")
+
+	for i := range g.Clients {
+		if g.Clients[i].Player.Name != player_name {
+			if g.Clients[i].Player.Group != nil && g.Clients[i].Player.Group.ID == player_group_name {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT GROUP CHAT "+player_name+": "+message)
 			}
 		}
 	}
