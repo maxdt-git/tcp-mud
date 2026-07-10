@@ -182,7 +182,11 @@ func (g *Game) Group(conn net.Conn, parts []string) string {
 
 	case "JOIN":
 		return g.GroupJoin(conn, parts)
+
+	case "LEAVE":
+		return g.GroupLeave(conn, parts)
 	}
+
 	return ""
 }
 
@@ -282,9 +286,50 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 		}
 		group.Members[player.Name] = player
 		player.Group = group
-		return "OK group= " + parts[2]
+		return "OK group=" + parts[2]
 	}
 	return "ERR invalid invitaion"
+}
+
+func (g *Game) GroupLeave(conn net.Conn, parts []string) string {
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+
+	if player.Group == nil {
+		return "401	NOT_IN_GROUP"
+	}
+	group := player.Group
+	group_name := group.ID
+	delete(player.Group.Members, player_name)
+	if player.Group.Leader.Name == player_name && len(player.Group.Members) > 0 {
+		for _, member := range player.Group.Members {
+			player.Group.Leader = member
+			break
+		}
+	}
+	if len(group.Members) > 0 {
+		var members_name []string
+		var members_conn []net.Conn
+
+		for i := range group.Members {
+			members_name = append(members_name, group.Members[i].Name)
+		}
+		for j := range members_name {
+			for k := range g.Clients {
+				if g.Clients[k].Player.Name == members_name[j] {
+					members_conn = append(members_conn, g.Clients[k].Conn)
+				}
+			}
+		}
+		for l := range members_conn {
+			fmt.Fprintln(members_conn[l], "EVT GROUP LEAVE "+player_name)
+		}
+	}
+	if len(player.Group.Members) == 0 {
+		delete(g.Groups, group_name)
+	}
+	player.Group = nil
+	return "OK"
 }
 
 // end group functions
@@ -305,5 +350,6 @@ func (g *Game) Badmanners(conn net.Conn) string {
 	for i := range player.Group.Members {
 		fmt.Fprintln(conn, player.Group.Members[i].Name)
 	}
+	fmt.Fprintln(conn, "leader : "+player.Group.Leader.Name)
 	return ""
 }
