@@ -151,13 +151,11 @@ func (g *Game) ChatGroup(conn net.Conn, parts []string) string {
 		return "ERR 401 NOT_IN_GROUP"
 	}
 
-	player_group_name := g.Players[player_name].Group.ID
-
 	message := strings.Join(parts[2:], " ")
 
 	for i := range g.Clients {
 		if g.Clients[i].Player.Name != player_name {
-			if g.Clients[i].Player.Group != nil && g.Clients[i].Player.Group.ID == player_group_name {
+			if g.Clients[i].Player.Group != nil && g.Clients[i].Player.Group == player.Group {
 				fmt.Fprintln(g.Clients[i].Conn, "EVT GROUP CHAT "+player_name+": "+message)
 			}
 		}
