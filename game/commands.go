@@ -92,7 +92,7 @@ func (g *Game) Chat(conn net.Conn, parts []string) string {
 		return g.ChatGlobal(conn, parts)
 
 	case "ROOM":
-		return g.GroupInvite(conn, parts)
+		return g.ChatRoom(conn, parts)
 
 	case "GROUP":
 		return g.GroupJoin(conn, parts)
@@ -112,6 +112,27 @@ func (g *Game) ChatGlobal(conn net.Conn, parts []string) string {
 	for i := range g.Clients {
 		if g.Clients[i].Player.Name != player_name {
 			fmt.Fprintln(g.Clients[i].Conn, "EVT GLOBAL CHAT "+player_name+": "+message)
+		}
+	}
+
+	return "OK"
+}
+
+func (g *Game) ChatRoom(conn net.Conn, parts []string) string {
+	if len(parts) < 3 {
+		return "ERROR 407 MISSING_MESSAGE"
+	}
+
+	player_name := g.Clients[conn].Player.Name
+	player_room := g.Players[player_name].Room
+
+	message := strings.Join(parts[2:], " ")
+
+	for i := range g.Clients {
+		if g.Clients[i].Player.Name != player_name {
+			if g.Clients[i].Player.Room == player_room {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM CHAT "+player_name+": "+message)
+			}
 		}
 	}
 
