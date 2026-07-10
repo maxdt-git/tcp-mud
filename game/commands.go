@@ -448,6 +448,7 @@ func (g *Game) Badmanners(conn net.Conn) string {
 	player := g.Players[player_name]
 
 	player.Hp -= 20
+	player.Status = "poisoned"
 
 	return ""
 }
