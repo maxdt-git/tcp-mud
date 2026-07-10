@@ -81,13 +81,44 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 	return "OK room= " + direction
 }
 
+// Chat functions
+
 func (g *Game) Chat(conn net.Conn, parts []string) string {
 	if len(parts) < 2 {
-		return "ERR 407 MISSING_MESSAGE"
+		return "ERR 407 MISSING_ARGUMENT"
 	}
-	message := strings.Join(parts[1:], " ")
-	return "OK chat=" + message
+	switch parts[1] {
+	case "GLOBAL":
+		return g.ChatGlobal(conn, parts)
+
+	case "ROOM":
+		return g.GroupInvite(conn, parts)
+
+	case "GROUP":
+		return g.GroupJoin(conn, parts)
+	}
+	return "ERR 407 WRONG ARGUMENT"
 }
+
+func (g *Game) ChatGlobal(conn net.Conn, parts []string) string {
+	if len(parts) < 3 {
+		return "ERROR 407 MISSING_MESSAGE"
+	}
+
+	player_name := g.Clients[conn].Player.Name
+
+	message := strings.Join(parts[2:], " ")
+
+	for i := range g.Clients {
+		if g.Clients[i].Player.Name != player_name {
+			fmt.Fprintln(g.Clients[i].Conn, "EVT GLOBAL CHAT "+player_name+": "+message)
+		}
+	}
+
+	return "OK"
+}
+
+// end Chat functions
 
 func (g *Game) Talk(conn net.Conn, parts []string) string {
 	g.Mutex.Lock()
