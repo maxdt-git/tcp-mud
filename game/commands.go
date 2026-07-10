@@ -31,10 +31,32 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 		Room:      "1",
 		Inventory: make(map[string]string),
 		Dialogue:  false,
+		Hp:        100,
+		Max_hp:    100,
+		Status:    "healthy",
 	}
 	g.Clients[conn].Player = g.Players[name]
 	g.Rooms["1"].Players = append(g.Rooms["1"].Players, g.Players[name])
 	return "OK connected " + name
+}
+
+func (g *Game) Status(conn net.Conn) string {
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+
+	res := StatusResponse{
+		Hp:     player.Hp,
+		Max_hp: player.Max_hp,
+		Status: player.Status,
+	}
+
+	data, err := json.Marshal(res)
+
+	if err != nil {
+		return "ERR 901 SEND_FAILED"
+	}
+
+	return "OK " + string(data)
 }
 
 func (g *Game) Look(conn net.Conn) string {
@@ -424,9 +446,8 @@ func (g *Game) Inventory(conn net.Conn) string {
 func (g *Game) Badmanners(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
-	for i := range player.Group.Members {
-		fmt.Fprintln(conn, player.Group.Members[i].Name)
-	}
-	fmt.Fprintln(conn, "leader : "+player.Group.Leader.Name)
+
+	player.Hp -= 20
+
 	return ""
 }

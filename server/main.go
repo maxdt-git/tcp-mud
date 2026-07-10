@@ -73,6 +73,9 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 	case "DROP":
 		return game.Drop(conn, parts)
 
+	case "STATUS":
+		return game.Status(conn)
+
 	case "WTF":
 		return game.Badmanners(conn)
 

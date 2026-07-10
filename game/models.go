@@ -17,6 +17,9 @@ type Player struct {
 	Group     *Group
 	Invites   []string
 	Dialogue  bool
+	Hp        int
+	Max_hp    int
+	Status    string
 }
 
 type Room struct {
@@ -50,6 +53,12 @@ type LookResponse struct {
 	Players []string          `json:"players"`
 	Items   map[string]string `json:"items"`
 	NPCs    []string          `json:"npcs"`
+}
+
+type StatusResponse struct {
+	Hp     int    `json:"hp"`
+	Max_hp int    `json:"max_hp"`
+	Status string `json:"status"`
 }
 
 type Group struct {
