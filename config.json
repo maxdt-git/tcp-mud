@@ -4,6 +4,9 @@
         "name": "Glade of the Powerfull",
             "description": "A very peacefull glade, in the middle of the forrest with a well",
         "exits": ["south"],
+        "neighbours": {
+            "south": "2"
+        },
         "items": {
             "wooden stick": "Not enough to fight properly...",
             "water of the brave": "Give a dose of courage before a new quest"
@@ -21,7 +24,10 @@
     "room": 2,
         "name": "Village of Devas",
             "description": "good village",
-        "exits": ["south", "east", "west"],
+        "exits": ["north"],
+        "neighbours": {
+            "north": "1"
+        },
         "items": {
             "clopes": "A whiff of freedom...",
             "bieres": "Give a dose of courage before a new quest"

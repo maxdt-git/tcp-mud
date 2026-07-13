@@ -100,7 +100,29 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 		return "ERR 302 MISSING_DIRECTION"
 	}
 	direction := parts[1]
-	return "OK room= " + direction
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+	cur_room := g.Rooms[player.Room]
+	old_room := player.Room
+
+	for i := range cur_room.Exits {
+		if cur_room.Exits[i] == direction {
+			player.Room = cur_room.Neighbours[direction]
+			// EVT presence enter and leave
+			for i := range g.Clients {
+				if g.Clients[i].Player.Name != player_name {
+					if g.Clients[i].Player.Room == old_room {
+						fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE LEAVE "+player_name)
+					}
+					if g.Clients[i].Player.Room == player.Room {
+						fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE ENTER "+player_name)
+					}
+				}
+			}
+			return "OK room=" + g.Rooms[player.Room].Name
+		}
+	}
+	return "ERR 301 NO_EXIT"
 }
 
 // Chat functions

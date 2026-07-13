@@ -28,6 +28,7 @@ type Room struct {
 	Description string            `json:"description"`
 	Exits       []string          `json:"exits"`
 	Items       map[string]string `json:"items"`
+	Neighbours  map[string]string `json:"neighbours"`
 	Npcs        []string          `json:"npcs"`
 	Dialogue    []string          `json:"dialogue"`
 	Players     []*Player         `json:"-"`
