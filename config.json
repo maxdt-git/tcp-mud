@@ -1,33 +1,70 @@
 [
     {
-    "room": 1,
+        "room": 1,
         "name": "Glade of the Powerfull",
-            "description": "A very peacefull glade, in the middle of the forrest with a well",
+        "description": "A very peacefull glade, in the middle of the forrest with a well",
         "exits": ["south"],
         "items": {
             "wooden stick": "Not enough to fight properly...",
             "water of the brave": "Give a dose of courage before a new quest"
         },
-        "npcs": ["the great sage"],
-            "dialogue": [
-                "Welcome to Devas's forrest!\nTo begin, I have an enigm for you, will you be able to find the response?",
-                "I always run but never walk, often murmur but never talk, have a bed but never sleep, have a mouth but never eat. What am I?",
-                "You can come back later young player",
-                "Wrong response at the question",
-                "Really good, you can now follow the south direction to go to the village of Devas"],
-        "players": []
+        "npcs": [
+            {
+                "name": "the great sage",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Welcome to Devas's forrest!\nTo begin, I have an enigm for you, will you be able to find the response?",
+                        "responses": { "yes": "riddle", "no": "leave" }
+                    },
+                    "riddle": {
+                        "text": "I always run but never walk, often murmur but never talk, have a bed but never sleep, have a mouth but never eat. What am I?",
+                        "responses": { "river": "correct", "a river": "correct", "wrong": "wrong" }
+                    },
+                    "correct": {
+                        "text": "Really good, you can now follow the south direction to go to the village of Devas",
+                        "end": true
+                    },
+                    "wrong": {
+                        "text": "Wrong response, try to find the correct answer and come back later young player",
+                        "end": true
+                    },
+                    "leave": {
+                        "text": "You can come back later young player",
+                        "end": true
+                    }
+                }
+            }
+        ]
     },
     {
-    "room": 2,
+        "room": 2,
         "name": "Village of Devas",
-            "description": "good village",
+        "description": "good village",
         "exits": ["south", "east", "west"],
         "items": {
             "clopes": "A whiff of freedom...",
             "bieres": "Give a dose of courage before a new quest"
         },
-        "npcs": ["taverier"],
-            "dialogue":["salut les gars"],
-        "players": []
+        "npcs": [
+            {
+                "name": "taverier",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello dude",
+                        "responses": { "how are you": "wellbeing" }
+                    },
+                    "wellbeing": {
+                        "text": "how are you?",
+                        "responses": { "*": "farewell" }
+                    },
+                    "farewell": {
+                        "text": "have a great day",
+                        "end": true
+                    }
+                }
+            }
+        ]
     }
 ]

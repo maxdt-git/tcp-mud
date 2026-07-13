@@ -11,15 +11,28 @@ type Client struct {
 }
 
 type Player struct {
-	Name      string
-	Room      string
-	Inventory map[string]string
-	Group     *Group
-	Invites   []string
-	Dialogue  bool
-	Hp        int
-	Max_hp    int
-	Status    string
+	Name         string
+	Room         string
+	Inventory    map[string]string
+	Group        *Group
+	Invites      []string
+	TalkingNpc   string
+	DialogueNode string
+	Hp           int
+	Max_hp       int
+	Status       string
+}
+
+type DialogueNode struct {
+	Text      string            `json:"text"`
+	Responses map[string]string `json:"responses"`
+	End       bool              `json:"end"`
+}
+
+type Npc struct {
+	Name  string                  `json:"name"`
+	Start string                  `json:"start"`
+	Nodes map[string]DialogueNode `json:"nodes"`
 }
 
 type Room struct {
@@ -28,8 +41,7 @@ type Room struct {
 	Description string            `json:"description"`
 	Exits       []string          `json:"exits"`
 	Items       map[string]string `json:"items"`
-	Npcs        []string          `json:"npcs"`
-	Dialogue    []string          `json:"dialogue"`
+	Npcs        []Npc             `json:"npcs"`
 	Players     []*Player         `json:"-"`
 }
 

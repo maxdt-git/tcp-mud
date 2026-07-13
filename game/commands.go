@@ -30,7 +30,6 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 		Name:      name,
 		Room:      "1",
 		Inventory: make(map[string]string),
-		Dialogue:  false,
 		Hp:        100,
 		Max_hp:    100,
 		Status:    "healthy",
@@ -66,6 +65,10 @@ func (g *Game) Look(conn net.Conn) string {
 	for _, p := range room.Players {
 		players = append(players, p.Name)
 	}
+	npcs := []string{}
+	for _, npc := range room.Npcs {
+		npcs = append(npcs, npc.Name)
+	}
 	res := LookResponse{
 		Room: RoomResponse{
 			ID:          room.Id,
@@ -75,7 +78,7 @@ func (g *Game) Look(conn net.Conn) string {
 		},
 		Players: players,
 		Items:   room.Items,
-		NPCs:    room.Npcs,
+		NPCs:    npcs,
 	}
 	data, err := json.Marshal(res)
 	if err != nil {
@@ -192,32 +195,61 @@ func (g *Game) Talk(conn net.Conn, parts []string) string {
 	g.Mutex.Lock()
 	defer g.Mutex.Unlock()
 
-	if parts[0] == "TALK" && len(parts) < 2 {
+	if len(parts) < 2 {
 		return "ERR 407 MISSING_MESSAGE"
 	}
 
-	test := strings.Join(parts, " ")
-	test, _ = strings.CutPrefix(test, "TALK ")
+	player := g.Clients[conn].Player
+	room := g.Rooms[player.Room]
+	input := strings.Join(parts[1:], " ")
 
-	// fmt.Println(test)
-	dialogue := g.Rooms[g.Clients[conn].Player.Room].Dialogue
+	// not currently in a conversation: parts[1:] must name an NPC present in the room
+	if player.TalkingNpc == "" {
+		for _, npc := range room.Npcs {
+			if npc.Name == input {
+				node, ok := npc.Nodes[npc.Start]
+				if !ok {
+					return "ERR 404 NPC_NOT_FOUND"
+				}
+				player.TalkingNpc = npc.Name
+				player.DialogueNode = npc.Start
+				return "OK " + node.Text
+			}
+		}
+		return "ERR 404 NPC_NOT_FOUND"
+	}
 
-	if g.Rooms[g.Clients[conn].Player.Room].Npcs[0] == test {
-		g.Clients[conn].Player.Dialogue = true
-		return "OK " + dialogue[0]
+	// already talking to an npc: try to advance in the dialogue
+	var npc *Npc
+
+	for i := range room.Npcs {
+		if room.Npcs[i].Name == player.TalkingNpc {
+			npc = &room.Npcs[i]
+			break
+		}
 	}
-	if test == "yes" {
-		return "OK " + dialogue[1]
+
+	node := npc.Nodes[player.DialogueNode]
+	next, ok := node.Responses[input]
+	if !ok {
+		next, ok = node.Responses["wrong"]
 	}
-	if test == "no" {
-		g.Clients[conn].Player.Dialogue = false
-		return "OK " + dialogue[2]
+	if !ok {
+		return "ERR 404 INVALID_RESPONSE"
 	}
-	if test == "a river" || test == "river" {
-		g.Clients[conn].Player.Dialogue = false
-		return "OK " + dialogue[4]
+
+	nextNode, ok := npc.Nodes[next]
+	if !ok {
+		return "ERR 404 NPC_NOT_FOUND"
 	}
-	return "ERR 404 NPC_NOT_FOUND"
+
+	if nextNode.End {
+		player.TalkingNpc = ""
+		player.DialogueNode = ""
+	} else {
+		player.DialogueNode = next
+	}
+	return "OK " + nextNode.Text
 }
 
 func (g *Game) Quit(conn net.Conn) string {

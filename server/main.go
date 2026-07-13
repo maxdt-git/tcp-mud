@@ -22,20 +22,8 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 	}
 
 	if game.Clients[conn].Player != nil {
-		if game.Clients[conn].Player.Dialogue == true {
-			test := strings.Join(parts, " ")
-			switch test {
-			case "yes":
-				return game.Talk(conn, parts)
-			case "no":
-				return game.Talk(conn, parts)
-			case "a river":
-				return game.Talk(conn, parts)
-			case "river":
-				return game.Talk(conn, parts)
-			default:
-				return "OK " + game.Rooms[game.Clients[conn].Player.Room].Dialogue[4]
-			}
+		if game.Clients[conn].Player.TalkingNpc != "" {
+			return game.Talk(conn, append([]string{"TALK"}, parts...))
 		}
 	}
 
