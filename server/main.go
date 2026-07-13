@@ -92,6 +92,9 @@ func handle(conn net.Conn, game *game.Game) {
 		message, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("Client disconnected")
+			if game.Clients[conn].Player != nil {
+				game.Quit(conn)
+			}
 			return
 		}
 		command := strings.TrimSpace(message)

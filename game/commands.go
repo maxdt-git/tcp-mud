@@ -295,8 +295,17 @@ func (g *Game) Quit(conn net.Conn) string {
 	defer g.Mutex.Unlock()
 
 	client := g.Clients[conn]
+	player_room := client.Player.Room
+	room := g.Rooms[player_room]
 
 	if client != nil && client.Player != nil {
+		for i, p := range room.Players {
+			if p.Name == client.Player.Name {
+				room.Players = append(room.Players[:i], room.Players[i+1:]...) // remove from room
+				break
+			}
+		}
+		g.GroupLeave(conn)
 		delete(g.Players, client.Player.Name) // delete removes the g.players in key client.Player.Name
 	}
 
@@ -353,7 +362,7 @@ func (g *Game) Group(conn net.Conn, parts []string) string {
 		return g.GroupJoin(conn, parts)
 
 	case "LEAVE":
-		return g.GroupLeave(conn, parts)
+		return g.GroupLeave(conn)
 	}
 
 	return ""
@@ -460,7 +469,7 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 	return "ERR 411 INVALID_INVITE"
 }
 
-func (g *Game) GroupLeave(conn net.Conn, parts []string) string {
+func (g *Game) GroupLeave(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
 
@@ -555,7 +564,8 @@ func (g *Game) Loot(conn net.Conn, parts []string) string {
 func (g *Game) Badmanners(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
-	room := g.Rooms[player.Room]
-
-	return "" + room.Monsters[0].Name
+	for i := range player.Group.Members {
+		fmt.Fprintln(conn, player.Group.Members[i].Name)
+	}
+	return "WTF"
 }
