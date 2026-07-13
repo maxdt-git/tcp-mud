@@ -44,13 +44,46 @@
         "room": 2,
         "name": "Village of Devas",
             "description": "good village",
-        "exits": ["north"],
+        "exits": ["north", "east"],
         "neighbours": {
-            "north": "1"
+            "north": "1",
+            "east": "3"
         },
         "items": {
             "clopes": "A whiff of freedom...",
             "bieres": "Give a dose of courage before a new quest"
+        },
+        "npcs": [
+            {
+                "name": "taverier",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello dude",
+                        "responses": { "how are you": "wellbeing" }
+                    },
+                    "wellbeing": {
+                        "text": "how are you?",
+                        "responses": { "*": "farewell" }
+                    },
+                    "farewell": {
+                        "text": "have a great day",
+                        "end": true
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 3,
+        "name": "The Wanderer's Rest",
+            "description": "The village's favorite gathering place, offering warm beds, hearty food, and tales from every corner of the realm.",
+        "exits": ["west"],
+        "neighbours": {
+            "west": "2"
+        },
+        "items": {
+            "silver coin": "Someone must have dropped it"
         },
         "npcs": [
             {

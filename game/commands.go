@@ -122,7 +122,15 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 					}
 				}
 			}
-			// add player to room
+			// add player to room, remove from old
+			g.Rooms[player.Room].Players = append(g.Rooms[player.Room].Players, g.Players[player_name])
+			players := g.Rooms[old_room].Players
+			for i, p := range players {
+				if p == player {
+					g.Rooms[old_room].Players = append(players[:i], players[i+1:]...)
+					break
+				}
+			}
 			return "OK room=" + g.Rooms[player.Room].Name
 		}
 	}
