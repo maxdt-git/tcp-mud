@@ -513,6 +513,45 @@ func (g *Game) Inventory(conn net.Conn) string {
 	return "OK " + string(data)
 }
 
+func (g *Game) Loot(conn net.Conn, parts []string) string {
+	if len(parts) < 2 {
+		return "ERR 407 MISSING_TARGET_NAME"
+	}
+	target := strings.Join(parts[1:], " ")
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+	player_room := g.Rooms[player.Room]
+
+	// get the id of monster
+	id := -1
+
+	for i := range player_room.Monsters {
+		if target == player_room.Monsters[i].Name {
+			id = i
+		}
+	}
+	// check if possible to loot
+	if id == -1 {
+		return "ERR 404 MONSTER_NOT_FOUND"
+	}
+
+	if len(player_room.Monsters[id].Items) == 0 {
+		return "ERR 404 NOTHING_TO_LOOT"
+	}
+
+	if player_room.Monsters[id].Alive == true {
+		return "ERR 421 CANT_LOOT_ALIVE_MONSTER"
+	}
+
+	// loot
+	for name, desc := range player_room.Monsters[id].Items {
+		player.Inventory[name] = desc
+		delete(player_room.Monsters[id].Items, name)
+		return "OK taken=" + name
+	}
+	return ""
+}
+
 func (g *Game) Badmanners(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]

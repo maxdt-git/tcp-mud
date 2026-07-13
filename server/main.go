@@ -25,6 +25,12 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 		if game.Clients[conn].Player.TalkingNpc != "" {
 			return game.Talk(conn, append([]string{"TALK"}, parts...))
 		}
+		if game.Clients[conn].Player.Status == "combat" &&
+			parts[0] != "ATTACK" &&
+			parts[0] != "QUIT" &&
+			parts[0] != "STATUS" {
+			return "ERR PLAYER_IN_COMBAT"
+		}
 	}
 
 	switch parts[0] {
@@ -69,6 +75,9 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 
 	case "ATTACK":
 		return game.Attack(conn, parts)
+
+	case "LOOT":
+		return game.Loot(conn, parts)
 
 	default:
 		return "ERR unknown_command"

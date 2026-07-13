@@ -36,9 +36,11 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 
 	// monster death
 	if player_Room.Monsters[monster_id].HP <= 0 {
+		old_name := player_Room.Monsters[monster_id].Name
 		player_Room.Monsters[monster_id].Alive = false
+		player_Room.Monsters[monster_id].Name = "dead " + player_Room.Monsters[monster_id].Name
 		player.Status = "healthy"
-		return "OK " + player_Room.Monsters[monster_id].Name + " defeated"
+		return "OK " + old_name + " defeated"
 	}
 
 	// player death

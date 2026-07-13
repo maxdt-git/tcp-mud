@@ -39,7 +39,18 @@
                 }
             }
         ],
-        "monsters":[]
+        "monsters": [
+            {
+                "name": "spiderling",
+                "hp": 5,
+                "attack": 2,
+                "alive": true,
+                "items": {
+                    "vial of venom": "Use with caution",
+                    "spider fang": "Sharp..."
+                }
+            }
+        ]
     },
     {
         "room": 2,
@@ -109,16 +120,20 @@
         ],
         "monsters": [
             {
-                "name": "Goblin",
+                "name": "goblin",
                 "hp": 30,
                 "attack": 8,
-                "alive": true
+                "alive": true,
+                "items": {
+                    "goblin dagger": "A blunt knife"
+                }
             },
             {
-                "name": "Wolf",
+                "name": "wolf",
                 "hp": 45,
                 "attack": 12,
-                "alive": true
+                "alive": true,
+                "items": {}
             }
         ] 
     }
