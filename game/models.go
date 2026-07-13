@@ -21,6 +21,7 @@ type Player struct {
 	Hp           int
 	Max_hp       int
 	Status       string
+	Damage       int
 }
 
 type DialogueNode struct {
@@ -42,6 +43,7 @@ type Room struct {
 	Exits       []string          `json:"exits"`
 	Items       map[string]string `json:"items"`
 	Neighbours  map[string]string `json:"neighbours"`
+	Monsters    []Monster         `json:"monsters"`
 	Dialogue    []string          `json:"dialogue"`
 	Npcs        []Npc             `json:"npcs"`
 	Players     []*Player         `json:"-"`
@@ -63,10 +65,11 @@ type RoomResponse struct {
 }
 
 type LookResponse struct {
-	Room    RoomResponse      `json:"room"`
-	Players []string          `json:"players"`
-	Items   map[string]string `json:"items"`
-	NPCs    []string          `json:"npcs"`
+	Room     RoomResponse      `json:"room"`
+	Players  []string          `json:"players"`
+	Items    map[string]string `json:"items"`
+	NPCs     []string          `json:"npcs"`
+	Monsters []string          `json:"monsters"`
 }
 
 type StatusResponse struct {
@@ -75,8 +78,23 @@ type StatusResponse struct {
 	Status string `json:"status"`
 }
 
+type CombatResponse struct {
+	Player_hp int    `json:"hp"`
+	Target_hp int    `json:"target_hp"`
+	Damage    int    `json:"damage"`
+	Counter   int    `json:"counter_atk"`
+	Status    string `json:"status"`
+}
+
 type Group struct {
 	ID      string
 	Leader  *Player
 	Members map[string]*Player
+}
+
+type Monster struct {
+	Name   string `json:"name"`
+	HP     int    `json:"hp"`
+	Attack int    `json:"attack"`
+	Alive  bool   `json:"alive"`
 }

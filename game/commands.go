@@ -33,6 +33,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 		Hp:        100,
 		Max_hp:    100,
 		Status:    "healthy",
+		Damage:    10,
 	}
 	g.Clients[conn].Player = g.Players[name]
 	g.Rooms["1"].Players = append(g.Rooms["1"].Players, g.Players[name])
@@ -66,8 +67,13 @@ func (g *Game) Look(conn net.Conn) string {
 		players = append(players, p.Name)
 	}
 	npcs := []string{}
+	monsters := []string{}
+
 	for _, npc := range room.Npcs {
 		npcs = append(npcs, npc.Name)
+	}
+	for _, monster := range room.Monsters {
+		monsters = append(monsters, monster.Name)
 	}
 	res := LookResponse{
 		Room: RoomResponse{
@@ -76,9 +82,10 @@ func (g *Game) Look(conn net.Conn) string {
 			Description: room.Description,
 			Exits:       room.Exits,
 		},
-		Players: players,
-		Items:   room.Items,
-		NPCs:    npcs,
+		Players:  players,
+		Items:    room.Items,
+		NPCs:     npcs,
+		Monsters: monsters,
 	}
 	data, err := json.Marshal(res)
 	if err != nil {
@@ -509,9 +516,7 @@ func (g *Game) Inventory(conn net.Conn) string {
 func (g *Game) Badmanners(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
+	room := g.Rooms[player.Room]
 
-	player.Hp -= 20
-	player.Status = "poisoned"
-
-	return ""
+	return "" + room.Monsters[0].Name
 }

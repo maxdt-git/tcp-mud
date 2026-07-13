@@ -67,6 +67,9 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 	case "WTF":
 		return game.Badmanners(conn)
 
+	case "ATTACK":
+		return game.Attack(conn, parts)
+
 	default:
 		return "ERR unknown_command"
 	}

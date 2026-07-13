@@ -38,7 +38,8 @@
                     }
                 }
             }
-        ]
+        ],
+        "monsters":[]
     },
     {
         "room": 2,
@@ -72,7 +73,8 @@
                     }
                 }
             }
-        ]
+        ],
+        "monsters":[]
     },
     {
         "room": 3,
@@ -104,6 +106,20 @@
                     }
                 }
             }
-        ]
+        ],
+        "monsters": [
+            {
+                "name": "Goblin",
+                "hp": 30,
+                "attack": 8,
+                "alive": true
+            },
+            {
+                "name": "Wolf",
+                "hp": 45,
+                "attack": 12,
+                "alive": true
+            }
+        ] 
     }
 ]
