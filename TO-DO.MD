@@ -14,11 +14,15 @@
 ## STATUS
 - [OK]implement status command and modification to player struct
 ## LOOK
-- []look -> update players when delete
+- [OK]look -> update players when delete
 ## COMBAT SYSTEM
-- []create attackable npcs in json
-- []can only attack monsters
-- []design combat system
+- [OK]create attackable npcs in json
+- [OK]can only attack monsters
+- [OK]combat status limits commands
+- [WIP]design combat system
+## LOOT SYSTEM
+- [OK]can loot multiple items from dead mob
+- [?]remove dead mob from room when empty ???
 ## QUEST SYSTEM
 - []QUEST command to accept a quest from npc
 - []QUESTS command to list all accepted quests -> modify player struct to accept Quests map[string]string
@@ -33,7 +37,7 @@
 - []fix problem when wrong answer of the riddle, continue to try (or not)
 - []create test with other rooms
 ## JSON
-- []think about the next step (monsters, how many quest, purpose of the game etc)
+- [WIP]think about the next step (monsters, how many quest, purpose of the game etc)
 
 ## CHANGES SINCE LAST PUSH
 - change in models.go to accept struct npc and dialogue node and in config.json

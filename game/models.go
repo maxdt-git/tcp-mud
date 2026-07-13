@@ -93,9 +93,11 @@ type Group struct {
 }
 
 type Monster struct {
-	Name   string            `json:"name"`
-	HP     int               `json:"hp"`
-	Attack int               `json:"attack"`
-	Alive  bool              `json:"alive"`
-	Items  map[string]string `json:"items"`
+	Name     string            `json:"name"`
+	HP       int               `json:"hp"`
+	Attack   int               `json:"attack"`
+	Alive    bool              `json:"alive"`
+	Items    map[string]string `json:"items"`
+	InCombat bool              `json:"-"`
+	Fighting *Player           `json:"-"`
 }

@@ -29,7 +29,17 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		return "ERR 404 MONSTER_NOT_FOUND"
 	}
 
+	if !player_Room.Monsters[monster_id].InCombat {
+		player_Room.Monsters[monster_id].InCombat = true
+		player_Room.Monsters[monster_id].Fighting = player
+	}
+
+	if player_Room.Monsters[monster_id].Fighting != player {
+		return "ERR 422 MONSTER_IN_COMBAT"
+	}
+
 	// manage combat damage and status
+
 	player_Room.Monsters[monster_id].HP = player_Room.Monsters[monster_id].HP - player.Damage
 	player.Hp = player.Hp - player_Room.Monsters[monster_id].Attack
 	player.Status = "combat"
@@ -38,6 +48,8 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 	if player_Room.Monsters[monster_id].HP <= 0 {
 		old_name := player_Room.Monsters[monster_id].Name
 		player_Room.Monsters[monster_id].Alive = false
+		player_Room.Monsters[monster_id].Fighting = nil
+		player_Room.Monsters[monster_id].InCombat = false
 		player_Room.Monsters[monster_id].Name = "dead " + player_Room.Monsters[monster_id].Name
 		player.Status = "healthy"
 		return "OK " + old_name + " defeated"
