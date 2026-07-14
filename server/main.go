@@ -2,13 +2,13 @@ package main
 
 import (
 	"bufio"
-	// "container/list"
 	"fmt"
 	"net"
 	"strings"
+	"tap/game"
 )
 
-func handleCommand(command string, conn net.Conn, game *Game) string {
+func handleCommand(command string, conn net.Conn, game *game.Game) string {
 	parts := strings.Fields(command)
 
 	if len(parts) == 0 {
@@ -22,20 +22,18 @@ func handleCommand(command string, conn net.Conn, game *Game) string {
 	}
 
 	if game.Clients[conn].Player != nil {
-		if game.Clients[conn].Player.Dialogue == true {
-			test := strings.Join(parts, " ")
-			switch test {
-			case "yes":
-				return game.Talk(conn, parts)
-			case "no":
-				return game.Talk(conn, parts)
-			case "a river":
-				return game.Talk(conn, parts)
-			case "river":
-				return game.Talk(conn, parts)
-			default:
-				return "OK " + game.Rooms[game.Clients[conn].Player.Room].Dialogue[3]
-			}
+		if game.Clients[conn].Player.TalkingNpc != "" {
+			return game.Talk(conn, append([]string{"TALK"}, parts...))
+		}
+		if game.Clients[conn].Player.TalkingQuestgiver != "" {
+			return game.Quest(conn, append([]string{"QUEST"}, parts...))
+		}
+		if game.Clients[conn].Player.Status == "combat" &&
+			parts[0] != "ATTACK" &&
+			parts[0] != "QUIT" &&
+			parts[0] != "STATUS" &&
+			parts[0] != "USE" {
+			return "ERR PLAYER_IN_COMBAT"
 		}
 	}
 
@@ -62,20 +60,50 @@ func handleCommand(command string, conn net.Conn, game *Game) string {
 		return game.Quit(conn)
 
 	case "TAKE":
-		return game.Take(conn)
+		return game.Take(conn, parts)
 
-	case "BAG":
-		return game.Bag(conn)
+	case "INVENTORY":
+		return game.Inventory(conn)
+
+	case "GROUP":
+		return game.Group(conn, parts)
+
+	case "DROP":
+		return game.Drop(conn, parts)
+
+	case "STATUS":
+		return game.Status(conn)
 
 	case "WTF":
 		return game.Badmanners(conn)
+
+	case "ATTACK":
+		return game.Attack(conn, parts)
+
+	case "LOOT":
+		return game.Loot(conn, parts)
+
+	case "USE":
+		return game.Use(conn, parts)
+
+	case "QUEST":
+		return game.Quest(conn, parts)
+
+	case "QUESTS":
+		return game.Quests(conn, parts)
+
+	case "COMPLETE_QUEST":
+		return game.CompleteQuest(conn, parts)
+
+	case "ABANDON_QUEST":
+		return game.AbandonQuest(conn, parts)
 
 	default:
 		return "ERR unknown_command"
 	}
 }
 
-func handle(conn net.Conn, game *Game) {
+func handle(conn net.Conn, game *game.Game) {
 	defer conn.Close()
 
 	reader := bufio.NewReader(conn)
@@ -83,7 +111,9 @@ func handle(conn net.Conn, game *Game) {
 		message, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("Client disconnected")
-			delete(game.Players, game.Clients[conn].Player.Name)
+			if game.Clients[conn].Player != nil {
+				game.Quit(conn)
+			}
 			return
 		}
 		command := strings.TrimSpace(message)
@@ -99,13 +129,14 @@ func handle(conn net.Conn, game *Game) {
 
 func main() {
 
-	game := &Game{
-		Players: make(map[string]*Player),
-		Clients: make(map[net.Conn]*Client),
-		Rooms:   make(map[string]*Room),
+	g := &game.Game{
+		Players: make(map[string]*game.Player),
+		Clients: make(map[net.Conn]*game.Client),
+		Rooms:   make(map[string]*game.Room),
+		Groups:  make(map[string]*game.Group),
 	}
 	// open the json and stock the data in game
-	openJson(game)
+	game.OpenJson(g)
 
 	listener, err := net.Listen("tcp", ":4242") // creates listener
 	if err != nil {
@@ -122,10 +153,10 @@ func main() {
 			fmt.Println("Accept error:", err)
 			continue
 		}
-		game.Clients[conn] = &Client{
+		g.Clients[conn] = &game.Client{
 			Conn: conn,
 		}
 		fmt.Println("Client connected:", conn.RemoteAddr())
-		go handle(conn, game) // starts a go routine and returns to the loop
+		go handle(conn, g) // starts a go routine and returns to the loop
 	}
 }

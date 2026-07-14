@@ -1,33 +1,264 @@
 [
     {
-    "room": 1,
+        "room": 1,
         "name": "Glade of the Powerfull",
-            "description": "A very peacefull glade, in the middle of the forrest with a well",
-        "exits": ["south"],
-        "items": {
-            "wooden stick": "Not enough to fight properly...",
-            "water of the brave": "Give a dose of courage before a new quest"
+        "description": "A very peacefull glade, in the middle of the forrest with a well",
+        "exits": ["south", "north"],
+        "neighbours": {
+            "south": "2",
+            "north": "5"
         },
-        "npcs": ["the great sage"],
-            "dialogue": [
-                "Welcome to Devas's forrest!\nTo begin, I have an enigm for you, will you be able to find the response?",
-                "I always run but never walk, often murmur but never talk, have a bed but never sleep, have a mouth but never eat. What am I?",
-                "You can come back later young player",
-                "Wrong response at the question",
-                "Really good, you can now follow the south direction to go to the village of Devas"],
-        "players": []
+        "items": {
+            "wooden stick": {
+                "desc": "Not enough to fight properly...",
+                "type": "atk",
+                "dmg": 2
+            },
+            "water of the brave": {
+                "desc": "Give a dose of courage before a new quest",
+                "type": "heal",
+                "heal": 50
+            },
+            "crafted key": {
+                "desc": "Give a dose of courage before a new quest",
+                "type": "heal"
+            }
+        },
+        "npcs": [
+            {
+                "name": "the great sage",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Welcome to Devas's forrest!\nTo begin, I have an enigm for you, will you be able to find the response?",
+                        "responses": { "yes": "riddle", "no": "leave" }
+                    },
+                    "riddle": {
+                        "text": "I always run but never walk, often murmur but never talk, have a bed but never sleep, have a mouth but never eat. What am I?",
+                        "responses": { "river": "correct", "a river": "correct", "wrong": "wrong" }
+                    },
+                    "correct": {
+                        "text": "Really good, you can now follow the south direction to go to the village of Devas",
+                        "end": true
+                    },
+                    "wrong": {
+                        "text": "Wrong response, try to find the correct answer and come back later young player",
+                        "end": true
+                    },
+                    "leave": {
+                        "text": "You can come back later young player",
+                        "end": true
+                    }
+                }
+            }
+        ],
+        "monsters": [
+            {
+                "name": "spiderling",
+                "hp": 5,
+                "attack": 2,
+                "alive": true,
+                "items": {
+                    "vial of venom": {
+                        "desc": "Use with caution",
+                        "type": "special"
+                    },
+                    "spider fang": {
+                        "desc": "Sharp...",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
     },
     {
-    "room": 2,
+        "room": 2,
         "name": "Village of Devas",
             "description": "good village",
-        "exits": ["south", "east", "west"],
-        "items": {
-            "clopes": "A whiff of freedom...",
-            "bieres": "Give a dose of courage before a new quest"
+        "exits": ["north", "east", "west"],
+        "neighbours": {
+            "north": "1",
+            "east": "3",
+            "west": "4"
         },
-        "npcs": ["taverier"],
-            "dialogue":["salut les gars"],
-        "players": []
+        "items": {},
+        "npcs": [
+            {
+                "name": "taverier",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello dude",
+                        "responses": { "hello": "wellbeing" }
+                    },
+                    "wellbeing": {
+                        "text": "how are you?",
+                        "responses": { "fine": "bye" }
+                    },
+                    "bye": {
+                        "text": "have a great day",
+                        "end": true
+                    }
+                }
+            }
+        ],
+        "monsters":[],
+        "questgivers": [
+            {
+                "name": "fouras",
+                "start": "greet",
+                "description": "Find a vial of venom from a spiderling and give it to fouras",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello my dear friend\nI need you to find a vial of venom from a spiderling and give it back to me\nYou will be highly rewarded, do you accept this quest?",
+                        "responses": { "yes": "accept_quest", "no": "leave" }
+                    },
+                    "accept_quest": {
+                        "text": "QUEST ACCEPTED: fouras's quest",
+                        "end": true
+                    },
+                    "leave": {
+                        "text": "Come back when you are ready",
+                        "end": true
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 3,
+        "name": "The Wanderer's Rest",
+            "description": "The village's favorite gathering place, offering warm beds, hearty food, and tales from every corner of the realm.",
+        "exits": ["west"],
+        "neighbours": {
+            "west": "2"
+        },
+        "items": {
+            "silver coin": {
+                "desc": "Someone must have dropped it",
+                "type": "special"
+            }
+        },
+        "npcs": [
+            {
+                "name": "taverier",
+                "start": "greet",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello dude",
+                        "responses": { "hello": "wellbeing" }
+                    },
+                    "wellbeing": {
+                        "text": "how are you?",
+                        "responses": { "fine": "bye" }
+                    },
+                    "bye": {
+                        "text": "have a great day",
+                        "end": true
+                    }
+                }
+            }
+        ],
+        "monsters": [
+            {
+                "name": "goblin",
+                "hp": 30,
+                "attack": 8,
+                "alive": true,
+                "items": {
+                    "goblin dagger": {
+                        "desc": "A blunt knife",
+                        "type": "atk",
+                        "dmg": 10
+                    }
+                }
+            },
+            {
+                "name": "steven",
+                "hp": 450,
+                "attack": 50,
+                "alive": true,
+                "items": {
+                    "key fragment one": {
+                        "desc": "It's part of a larger key",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 4,
+        "name": "The Old Forge",
+            "description": "It seems abandoned. Perhaps I could bring it back to life.",
+        "exits": ["east"],
+        "neighbours": {
+            "east": "2"
+        },
+        "items": {},
+        "npcs": [],
+        "monsters": [
+            {
+                "name": "fire elemental",
+                "hp": 100,
+                "attack": 15,
+                "alive": true,
+                "items": {
+                    "burning coal": {
+                        "desc": "Like holding a burning sun",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 5,
+        "name": "The Dungeon Gates",
+            "description": "The ancient gates of a forgotten dungeon. Darkness waits beyond.",
+        "exits": ["south", "north"],
+        "neighbours": {
+            "south": "1",
+            "north": "6"
+        },
+        "items": {
+            "lit torch": {
+                "desc": "That's lit!",
+                "type": "special"
+            }
+        },
+        "npcs": [],
+        "monsters": []
+    },
+    {
+        "room": 6,
+        "name": "The Dungeon Hall",
+            "description": "A cold stone corridor where every shadow seems to hide an unseen danger.",
+        "exits": ["south"],
+        "neighbours": {
+            "south": "5"
+        },
+        "items": {},
+        "npcs": [],
+        "lit": false,
+        "monsters": [
+            {
+                "name": "Jose",
+                "hp": 50,
+                "attack": 50,
+                "alive": true,
+                "items": {
+                    "the destroyer": {
+                        "desc": "Is it a sword...or a gun??",
+                        "type": "atk",
+                        "dmg": 50
+                    },
+                    "magic mushroom": {
+                        "desc": "It has a faint floral scent, should I eat it?",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
     }
 ]

@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func openJson(game *Game) {
+func OpenJson(game *Game) {
 	data, err := os.ReadFile("config.json")
 	if err != nil {
 		fmt.Println("Error reading file", err)
