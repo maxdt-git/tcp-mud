@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-
+	"net"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -10,7 +10,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func gui() {
+func gui(conn net.Conn, incoming chan <-string) {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Grid Layout")
 

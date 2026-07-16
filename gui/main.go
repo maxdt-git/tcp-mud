@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"os"
 )
 
 func readServer(conn net.Conn, incoming chan <-string) {
@@ -29,17 +28,8 @@ func main() {
 	defer conn.Close()
 
 	incoming := make(chan string) //tuyau
-	// incoming <-"msg"
-	// ms := <- incoming
+
 	go readServer(conn, incoming)
 
-	stdin := bufio.NewReader(os.Stdin)
-
-	for {
-		text, err := stdin.ReadString('\n')
-		if err != nil {
-			return
-		}
-		fmt.Fprint(conn, text)
-	}
+	gui(conn, incoming)
 }
