@@ -21,7 +21,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 	for i := range player_Room.Monsters {
 		if player_Room.Monsters[i].Name == monster_name {
 			monster_id = i
-			if player_Room.Monsters[i].Alive == false {
+			if !player_Room.Monsters[i].Alive {
 				return "ERR 420 MONSTER_DEAD"
 			}
 		}
@@ -57,6 +57,8 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		// REMOVE EQUIPPED OBJECT
 		if player.Equipped {
 			player.Damage -= player.Weapon.Damage
+			player.Equipped = false
+			player.Weapon = Item{}
 		}
 		// DROP ITEMS IN ROOM
 		for i, desc := range player.Inventory {
@@ -94,6 +96,8 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		// REMOVE EQUIPPED OBJECT
 		if player.Equipped {
 			player.Damage -= player.Weapon.Damage
+			player.Equipped = false
+			player.Weapon = Item{}
 		}
 		// DROP ITEMS IN ROOM
 		for i, desc := range player.Inventory {
@@ -180,6 +184,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 	// SPECIAL
 	if player.Inventory[item].Type == "special" {
 		switch item {
+
 		case "spider fang":
 			if player_Room.Id != 3 {
 				return "ERR 429 CANT_USE_NOW"
@@ -205,6 +210,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 				delete(player.Inventory, "spider fang")
 				return "OK " + old_name + " defeated"
 			}
+
 		case "burning coal":
 			if player_Room.Id != 4 {
 				return "ERR 429 CANT_USE_NOW"
@@ -214,8 +220,14 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 				if i == "key fragment one" {
 					fragmentCount += 1
 				}
+				if i == "key fragment two" {
+					fragmentCount += 1
+				}
+				if i == "key fragment three" {
+					fragmentCount += 1
+				}
 			}
-			if fragmentCount == 0 {
+			if fragmentCount != 3 {
 				return "ERR 430 MISSING_KEY_FRAGMENT"
 			}
 			// change to include key nb
@@ -225,21 +237,132 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 			}
 			delete(player.Inventory, "burning coal")
 			delete(player.Inventory, "key fragment one")
+			delete(player.Inventory, "key fragment two")
+			delete(player.Inventory, "key fragment three")
 			player.Inventory["crafted key"] = key_item
 			return "OK taken=crafted key"
+
 		case "lit torch":
 			if player_Room.Id != 6 {
 				return "ERR 429 CANT_USE_NOW"
 			}
 			g.Rooms["6"].Lit = true
 			return "OK room lit"
+
 		case "magic mushroom":
 			player.Max_hp += 50
 			player.Hp += 50
 			if player.Hp > player.Max_hp {
 				player.Hp = player.Max_hp
 			}
+			delete(player.Inventory, "magic mushroom")
 			return "OK ingested=mushroom"
+
+		case "fireball scroll":
+			if player_Room.Id != 8 {
+				return "ERR 429 CANT_USE_NOW"
+			}
+			id := -1
+			for i := range player_Room.Monsters {
+				if player_Room.Monsters[i].Name == "Xorrt'ngst the ancient" {
+					id = i
+					break
+				}
+			}
+			if id == -1 {
+				return "ERR 429 CANT_USE_NOW"
+			}
+
+			if player.Status == "combat" && player_Room.Monsters[id].Fighting.Name == player_name {
+				delete(player.Inventory, "fireball scroll")
+				player_Room.Monsters[id].HP -= 500
+				player.Hp -= player_Room.Monsters[id].Attack
+
+				if player_Room.Monsters[id].HP <= 0 && player.Hp <= 0 {
+					player_Room.Monsters[id].Alive = false
+					player_Room.Monsters[id].Fighting = nil
+					player_Room.Monsters[id].InCombat = false
+					player_Room.Monsters[id].Name = "dead " + player_Room.Monsters[id].Name
+					player.Hp = 20
+					player.Status = "healthy"
+					// REMOVE EQUIPPED OBJECT
+					if player.Equipped {
+						player.Damage -= player.Weapon.Damage
+						player.Equipped = false
+						player.Weapon = Item{}
+					}
+					// DROP ITEMS IN ROOM
+					for i, desc := range player.Inventory {
+						player_Room.Items[i] = desc
+						delete(player.Inventory, i)
+					}
+					player.Room = "1"
+					// REMOVE PLAYER FROM ROOM
+					for i, p := range player_Room.Players {
+						if p == player {
+							player_Room.Players = append(player_Room.Players[:i], player_Room.Players[i+1:]...)
+							break
+						}
+					}
+					// ADD PLAYER TO ROOM START
+					g.Rooms["1"].Players = append(g.Rooms["1"].Players, player)
+					return "OK you both died"
+				}
+
+				// monster death
+				if player_Room.Monsters[id].HP <= 0 {
+					old_name := player_Room.Monsters[id].Name
+					player_Room.Monsters[id].Alive = false
+					player_Room.Monsters[id].Fighting = nil
+					player_Room.Monsters[id].InCombat = false
+					player_Room.Monsters[id].Name = "dead " + player_Room.Monsters[id].Name
+					player.Status = "healthy"
+					return "OK " + old_name + " defeated"
+				}
+
+				// player death
+				if player.Hp <= 0 {
+					player.Hp = 20
+					player.Status = "healthy"
+					// REMOVE EQUIPPED OBJECT
+					if player.Equipped {
+						player.Damage -= player.Weapon.Damage
+						player.Equipped = false
+						player.Weapon = Item{}
+					}
+					// DROP ITEMS IN ROOM
+					for i, desc := range player.Inventory {
+						player_Room.Items[i] = desc
+						delete(player.Inventory, i)
+					}
+					player.Room = "1"
+					// REMOVE PLAYER FROM ROOM
+					for i, p := range player_Room.Players {
+						if p == player {
+							player_Room.Players = append(player_Room.Players[:i], player_Room.Players[i+1:]...)
+							break
+						}
+					}
+					// ADD PLAYER TO ROOM START
+					g.Rooms["1"].Players = append(g.Rooms["1"].Players, player)
+					return "OK you died"
+				}
+
+				res := CombatResponse{
+					Player_hp: player.Hp,
+					Target_hp: player_Room.Monsters[id].HP,
+					Damage:    500,
+					Counter:   player_Room.Monsters[id].Attack,
+					Status:    player.Status,
+				}
+
+				data, err := json.Marshal(res)
+				if err != nil {
+					return "ERR 901 SEND_FAILED"
+				}
+
+				return "OK used=firescroll " + string(data)
+			}
 		}
 	}
 	return "ERR 429 CANT_USE_NOW"

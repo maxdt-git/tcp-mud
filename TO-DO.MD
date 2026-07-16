@@ -32,16 +32,14 @@
 - []quest chains -> quest 2 from npc becomes available only if quest 1 is done
 - [OK]create QUESTS
 - [OK]complete + abandon quest
+- [OK]cannot take a finish quest
+- [OK]second quest implemented gardener of gate
+- []condtion to enter the dungeon - quest of the gardener finished
 ## TALK
 - [OK]no hardcode on TALK
 - [OK]works for first room but not for others, change code should run with any room
 - [OK]fix problem when wrong answer of the riddle, continue to try (or not)
 - [OK]create test with other rooms
+- []handle when already talk
 ## JSON
 - [WIP]think about the next step (monsters, how many quest, purpose of the game etc)
-
-## CHANGES SINCE LAST PUSH
-- change in models.go to accept struct npc and dialogue node and in config.json
-- its like in pacman with different state in the dialogue, either we stay because of a wrong answer or we continue the dialogue if the answer is true until the end of it
-- permits to remove in the main.go the command of the 1st room talk npc
-- esaier to find every node of the dialogue

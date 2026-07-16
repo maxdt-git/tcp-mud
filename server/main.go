@@ -98,6 +98,9 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 	case "ABANDON_QUEST":
 		return game.AbandonQuest(conn, parts)
 
+	case "CHEAT":
+		return game.Cheat(conn)
+
 	default:
 		return "ERR unknown_command"
 	}

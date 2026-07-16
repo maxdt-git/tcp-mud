@@ -19,9 +19,9 @@
                 "type": "heal",
                 "heal": 50
             },
-            "crafted key": {
-                "desc": "Give a dose of courage before a new quest",
-                "type": "heal"
+            "chest": {
+                "desc": "A locked golden chest",
+                "type": "special"
             }
         },
         "npcs": [
@@ -38,7 +38,7 @@
                         "responses": { "river": "correct", "a river": "correct", "wrong": "wrong" }
                     },
                     "correct": {
-                        "text": "Really good, you can now follow the south direction to go to the village of Devas",
+                        "text": "Nice answer, good luck with your adventure, you can now go to the south direction to the village of devos",
                         "end": true
                     },
                     "wrong": {
@@ -84,19 +84,15 @@
         "items": {},
         "npcs": [
             {
-                "name": "taverier",
+                "name": "big fat cat",
                 "start": "greet",
                 "nodes": {
                     "greet": {
-                        "text": "Hello dude",
-                        "responses": { "hello": "wellbeing" }
+                        "text": "miaou miaou",
+                        "responses": { "miaou": "miaou" }
                     },
-                    "wellbeing": {
-                        "text": "how are you?",
-                        "responses": { "fine": "bye" }
-                    },
-                    "bye": {
-                        "text": "have a great day",
+                    "miaou": {
+                        "text": "miaou",
                         "end": true
                     }
                 }
@@ -162,26 +158,47 @@
         "monsters": [
             {
                 "name": "goblin",
-                "hp": 30,
+                "hp": 10,
                 "attack": 8,
                 "alive": true,
                 "items": {
                     "goblin dagger": {
                         "desc": "A blunt knife",
                         "type": "atk",
-                        "dmg": 10
+                        "dmg": 50
                     }
                 }
             },
             {
                 "name": "steven",
-                "hp": 450,
+                "hp": 10,
                 "attack": 50,
                 "alive": true,
                 "items": {
                     "key fragment one": {
                         "desc": "It's part of a larger key",
                         "type": "special"
+                    }
+                }
+            }
+        ],
+        "questgivers": [
+            {
+                "name": "Alfred the innkeeper",
+                "start": "greet",
+                "description": "Bring an onion to Alfred",
+                "nodes": {
+                    "greet": {
+                        "text": "I need an onion for my soup, bring it to me",
+                        "responses": { "yes": "accept_quest", "no": "leave" }
+                    },
+                    "accept_quest": {
+                        "text": "QUEST ACCEPTED: Alfred the innkeeper's quest",
+                        "end": true
+                    },
+                    "leave": {
+                        "text": "Come back when you are ready",
+                        "end": true
                     }
                 }
             }
@@ -200,7 +217,7 @@
         "monsters": [
             {
                 "name": "fire elemental",
-                "hp": 100,
+                "hp": 10,
                 "attack": 15,
                 "alive": true,
                 "items": {
@@ -228,15 +245,37 @@
             }
         },
         "npcs": [],
-        "monsters": []
+        "monsters": [],
+        "questgivers": [
+            {
+                "name": "gatekeeper",
+                "start": "greet",
+                "description": "Kill all the monsters outside the dungeon",
+                "nodes": {
+                    "greet": {
+                        "text": "Hello traveler\nTo enter the dungeon you must prove your value\nKill all the monsters outside the dungeon and come back to me",
+                        "responses": { "yes": "accept_quest", "no": "leave" }
+                    },
+                    "accept_quest": {
+                        "text": "QUEST ACCEPTED: gatekeeper's quest",
+                        "end": true
+                    },
+                    "leave": {
+                        "text": "Come back when you are ready",
+                        "end": true
+                    }
+                }
+            }
+        ]
     },
     {
         "room": 6,
         "name": "The Dungeon Hall",
             "description": "A cold stone corridor where every shadow seems to hide an unseen danger.",
-        "exits": ["south"],
+        "exits": ["south", "east"],
         "neighbours": {
-            "south": "5"
+            "south": "5",
+            "east": "7"
         },
         "items": {},
         "npcs": [],
@@ -251,10 +290,69 @@
                     "the destroyer": {
                         "desc": "Is it a sword...or a gun??",
                         "type": "atk",
-                        "dmg": 50
+                        "dmg": 100
                     },
                     "magic mushroom": {
                         "desc": "It has a faint floral scent, should I eat it?",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 7,
+        "name": "Necropolis",
+            "description": "A forgotten necropolis filled with weathered graves and an unsettling silence.",
+        "exits": ["west", "north"],
+        "neighbours": {
+            "west": "6",
+            "north": "8"
+        },
+        "items": {},
+        "npcs": [],
+        "lit": false,
+        "monsters": [
+            {
+                "name": "Skeleton King",
+                "hp": 15,
+                "attack": 16,
+                "alive": true,
+                "items": {
+                    "health potion": {
+                        "desc": "Looks like apple juice",
+                        "type": "heal",
+                        "heal": 100
+                    },
+                    "fireball scroll": {
+                        "desc": "It's written in elvish",
+                        "type": "special"
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "room": 8,
+        "name": "The Demon's rest",
+            "description": "A massive hall consumed by shadows, where the air burns with the presence of an ancient evil.",
+        "exits": ["south", "north"],
+        "neighbours": {
+            "south": "7",
+            "north": "1"
+        },
+        "items": {},
+        "npcs": [],
+        "lit": false,
+        "monsters": [
+            {
+                "name": "Xorrt'ngst the ancient",
+                "hp": 800,
+                "attack": 10,
+                "alive": true,
+                "items": {
+                    "key fragment three": {
+                        "desc": "Another key fragment",
                         "type": "special"
                     }
                 }

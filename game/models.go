@@ -42,9 +42,10 @@ type DialogueNode struct {
 }
 
 type Npc struct {
-	Name  string                  `json:"name"`
-	Start string                  `json:"start"`
-	Nodes map[string]DialogueNode `json:"nodes"`
+	Name          string                  `json:"name"`
+	Start         string                  `json:"start"`
+	Nodes         map[string]DialogueNode `json:"nodes"`
+	Dialogue_done bool
 }
 
 type Questgiver struct {
@@ -52,6 +53,7 @@ type Questgiver struct {
 	Start       string                  `json:"start"`
 	Description string                  `json:"description"`
 	Nodes       map[string]DialogueNode `json:"nodes"`
+	Quest_done  bool
 }
 
 type Room struct {
