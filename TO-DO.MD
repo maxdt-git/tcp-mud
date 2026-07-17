@@ -43,3 +43,11 @@
 - []handle when already talk
 ## JSON
 - [WIP]think about the next step (monsters, how many quest, purpose of the game etc)
+
+
+## GUI
+## MOVE
+- []can click and click again to display/hide
+
+## CONNECT
+- [OK]handle when no name input

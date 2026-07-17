@@ -14,9 +14,10 @@ run:
 		-e LIBGL_ALWAYS_SOFTWARE=1 \
 		-v $$XAUTHORITY:$$XAUTHORITY:ro \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-		-v $(CURDIR):/app \
+		-v $(CURDIR)/..:/app \
 		-v fyne-go-mod:/go/pkg/mod \
 		-v fyne-go-cache:/root/.cache/go-build \
+		-w /app/gui \
 		$(IMAGE)
 	xhost -SI:localuser:root
 
