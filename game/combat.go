@@ -75,7 +75,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		}
 		// ADD PLAYER TO ROOM START
 		g.Rooms["1"].Players = append(g.Rooms["1"].Players, player)
-		return "OK you both died"
+		return "OK combat=you both died"
 	}
 
 	// monster death
@@ -86,7 +86,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		player_Room.Monsters[monster_id].InCombat = false
 		player_Room.Monsters[monster_id].Name = "dead " + player_Room.Monsters[monster_id].Name
 		player.Status = "healthy"
-		return "OK " + old_name + " defeated"
+		return "OK combat=" + old_name + " defeated"
 	}
 
 	// player death
@@ -114,7 +114,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		}
 		// ADD PLAYER TO ROOM START
 		g.Rooms["1"].Players = append(g.Rooms["1"].Players, player)
-		return "OK you died"
+		return "OK combat=you died"
 	}
 
 	// create response
@@ -132,7 +132,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		return "ERR 901 SEND_FAILED"
 	}
 
-	return "OK " + string(data)
+	return "OK combat=" + string(data)
 }
 
 func (g *Game) Use(conn net.Conn, parts []string) string {
@@ -173,12 +173,12 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 			player.Equipped = true
 			player.Weapon = player.Inventory[item]
 			player.Damage += player.Inventory[item].Damage
-			return "OK equipped=" + item
+			return "OK used=" + item
 		} else if player.Equipped {
 			player.Damage -= player.Weapon.Damage
 			player.Weapon = player.Inventory[item]
 			player.Damage += player.Inventory[item].Damage
-			return "OK equipped=" + item
+			return "OK used=" + item
 		}
 	}
 	// SPECIAL
@@ -247,7 +247,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 				return "ERR 429 CANT_USE_NOW"
 			}
 			g.Rooms["6"].Lit = true
-			return "OK room lit"
+			return "OK used=lit torch, room lit"
 
 		case "magic mushroom":
 			player.Max_hp += 50
@@ -256,7 +256,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 				player.Hp = player.Max_hp
 			}
 			delete(player.Inventory, "magic mushroom")
-			return "OK ingested=mushroom"
+			return "OK used=magic mushroom"
 
 		case "fireball scroll":
 			if player_Room.Id != 8 {

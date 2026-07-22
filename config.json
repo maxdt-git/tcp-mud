@@ -38,15 +38,15 @@
                         "responses": { "river": "correct", "a river": "correct", "wrong": "wrong" }
                     },
                     "correct": {
-                        "text": "Nice answer, good luck with your adventure, you can now go to the south direction to the village of devos",
+                        "text": "end=Good luck with your adventure",
                         "end": true
                     },
                     "wrong": {
-                        "text": "Wrong response, try to find the correct answer and come back later young player",
+                        "text": "end=Wrong response, try to find the correct answer and come back later young player",
                         "end": true
                     },
                     "leave": {
-                        "text": "You can come back later young player",
+                        "text": "end=You can come back later young player",
                         "end": true
                     }
                 }
@@ -55,7 +55,7 @@
         "monsters": [
             {
                 "name": "spiderling",
-                "hp": 5,
+                "hp": 10,
                 "attack": 2,
                 "alive": true,
                 "items": {
@@ -74,7 +74,7 @@
     {
         "room": 2,
         "name": "Village of Devas",
-            "description": "good village",
+            "description": "A quiet village nestled at the forest's edge",
         "exits": ["north", "east", "west"],
         "neighbours": {
             "north": "1",
@@ -92,7 +92,7 @@
                         "responses": { "miaou": "miaou" }
                     },
                     "miaou": {
-                        "text": "miaou",
+                        "text": "end=miaou",
                         "end": true
                     }
                 }
@@ -110,7 +110,7 @@
                         "responses": { "yes": "accept_quest", "no": "leave" }
                     },
                     "accept_quest": {
-                        "text": "QUEST ACCEPTED: fouras's quest",
+                        "text": "fouras's quest",
                         "end": true
                     },
                     "leave": {
@@ -149,7 +149,7 @@
                         "responses": { "fine": "bye" }
                     },
                     "bye": {
-                        "text": "have a great day",
+                        "text": "end=have a great day",
                         "end": true
                     }
                 }
@@ -158,7 +158,7 @@
         "monsters": [
             {
                 "name": "goblin",
-                "hp": 10,
+                "hp": 20,
                 "attack": 8,
                 "alive": true,
                 "items": {
@@ -171,8 +171,8 @@
             },
             {
                 "name": "steven",
-                "hp": 10,
-                "attack": 50,
+                "hp": 15,
+                "attack": 10,
                 "alive": true,
                 "items": {
                     "key fragment one": {
@@ -193,7 +193,7 @@
                         "responses": { "yes": "accept_quest", "no": "leave" }
                     },
                     "accept_quest": {
-                        "text": "QUEST ACCEPTED: Alfred the innkeeper's quest",
+                        "text": "Alfred the innkeeper's quest",
                         "end": true
                     },
                     "leave": {
@@ -250,18 +250,9 @@
             {
                 "name": "gatekeeper",
                 "start": "greet",
-                "description": "Kill all the monsters outside the dungeon",
                 "nodes": {
                     "greet": {
-                        "text": "Hello traveler\nTo enter the dungeon you must prove your value\nKill all the monsters outside the dungeon and come back to me",
-                        "responses": { "yes": "accept_quest", "no": "leave" }
-                    },
-                    "accept_quest": {
-                        "text": "QUEST ACCEPTED: gatekeeper's quest",
-                        "end": true
-                    },
-                    "leave": {
-                        "text": "Come back when you are ready",
+                        "text": "gatekeeper's quest",
                         "end": true
                     }
                 }
@@ -283,7 +274,7 @@
         "monsters": [
             {
                 "name": "Jose",
-                "hp": 50,
+                "hp": 10,
                 "attack": 50,
                 "alive": true,
                 "items": {

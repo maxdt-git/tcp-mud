@@ -46,8 +46,16 @@
 
 
 ## GUI
-## MOVE
 - []can click and click again to display/hide
+- []find a way to update look and quests
+
+## MOVE
+- []wait for look?
 
 ## CONNECT
 - [OK]handle when no name input
+
+## TALK
+- []global state for dialogue
+
+upodate fireball

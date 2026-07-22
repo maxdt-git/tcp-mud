@@ -38,6 +38,20 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 	}
 	g.Clients[conn].Player = g.Players[name]
 	g.Rooms["1"].Players = append(g.Rooms["1"].Players, g.Players[name])
+	player_name := g.Clients[conn].Player.Name
+	player_room := g.Clients[conn].Player.Room
+	if len(g.Clients) > 0 {
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Name != player_name {
+				if g.Clients[i].Player.Room == player_room {
+					fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE ENTER "+player_name)
+				}
+			}
+		}
+	}
 	return "OK connected " + name
 }
 
@@ -57,7 +71,7 @@ func (g *Game) Status(conn net.Conn) string {
 		return "ERR 901 SEND_FAILED"
 	}
 
-	return "OK " + string(data)
+	return "OK status=" + string(data)
 }
 
 func (g *Game) Look(conn net.Conn) string {
@@ -196,18 +210,21 @@ func (g *Game) Talk(conn net.Conn, parts []string) string {
 	// not currently in a conversation must name an NPC present in the room
 	if player.TalkingNpc == "" {
 		for _, npc := range room.Npcs {
-			if npc.Dialogue_done {
-				return "Good luck with your adventure"
+			if npc.Name != input {
+				continue
 			}
-			if npc.Name == input {
-				node, ok := npc.Nodes[npc.Start]
-				if !ok {
-					return "ERR 404 NPC_NOT_FOUND"
+			for _, name := range npc.AlreadyTalkTo {
+				if player.Name == name {
+					return "OK end=Good luck with your adventure"
 				}
-				player.TalkingNpc = npc.Name
-				player.DialogueNode = npc.Start
-				return "OK " + node.Text
 			}
+			node, ok := npc.Nodes[npc.Start]
+			if !ok {
+				return "ERR 404 NPC_NOT_FOUND"
+			}
+			player.TalkingNpc = npc.Name
+			player.DialogueNode = npc.Start
+			return "OK " + node.Text
 		}
 		return "ERR 404 NPC_NOT_FOUND"
 	}
@@ -240,7 +257,8 @@ func (g *Game) Talk(conn net.Conn, parts []string) string {
 		player.TalkingNpc = ""
 		player.DialogueNode = ""
 		if next == "correct" {
-			npc.Dialogue_done = true
+			// npc.Dialogue_done = true
+			npc.AlreadyTalkTo = append(npc.AlreadyTalkTo, player.Name)
 		}
 	} else {
 		player.DialogueNode = next
@@ -256,7 +274,18 @@ func (g *Game) Quit(conn net.Conn) string {
 
 	if client != nil && client.Player != nil {
 		player_room := client.Player.Room
+		player_name := client.Player.Name
 		room := g.Rooms[player_room]
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Name != player_name {
+				if g.Clients[i].Player.Room == player_room {
+					fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE LEAVE "+player_name)
+				}
+			}
+		}
 		for i, p := range room.Players {
 			if p.Name == client.Player.Name {
 				room.Players = append(room.Players[:i], room.Players[i+1:]...) // remove from room
@@ -326,7 +355,7 @@ func (g *Game) Inventory(conn net.Conn) string {
 	if err != nil {
 		return "ERR 901 SEND_FAILED"
 	}
-	return "OK " + string(data)
+	return "OK inventory=" + string(data)
 }
 
 func (g *Game) Loot(conn net.Conn, parts []string) string {

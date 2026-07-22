@@ -17,60 +17,22 @@ func (g *Game) Quest(conn net.Conn, parts []string) string {
 	room := g.Rooms[player.Room]
 	input := strings.Join(parts[1:], " ")
 
-	// not currently in a conversation must name a questgiver present in the room
-	if player.TalkingQuestgiver == "" {
-		for _, questgiver := range room.Questgivers {
-			if questgiver.Quest_done {
-				return "ERR 406 NO_QUEST_AVAILABLE "
-			}
-			if questgiver.Name == input {
-				node, ok := questgiver.Nodes[questgiver.Start]
-				if !ok {
-					return "ERR 404 NPC_NOT_FOUND"
-				}
-				player.TalkingQuestgiver = questgiver.Name
-				player.DialogueNode = questgiver.Start
-				return "OK " + node.Text
-			}
-		}
-		return "ERR 404 NPC_NOT_FOUND"
-	}
-
-	// already talking to a questgiver: try to advance in the dialogue
-	var questgiver *Questgiver
-
 	for i := range room.Questgivers {
-		if room.Questgivers[i].Name == player.TalkingQuestgiver {
-			questgiver = &room.Questgivers[i]
-			break
+		questgiver := &room.Questgivers[i]
+		if questgiver.Name != input {
+			continue
 		}
-	}
-
-	node := questgiver.Nodes[player.DialogueNode]
-	next, ok := node.Responses[input]
-	if !ok {
-		return "ERR 404 INVALID_RESPONSE"
-	}
-
-	nextNode, ok := questgiver.Nodes[next]
-	if !ok {
-		return "ERR 404 NPC_NOT_FOUND"
-	}
-
-	if nextNode.End {
-		player.TalkingQuestgiver = ""
-		player.DialogueNode = ""
-	} else {
-		player.DialogueNode = next
-	}
-	if strings.HasPrefix(nextNode.Text, "QUEST ACCEPTED") {
-		quest, ok := strings.CutPrefix(nextNode.Text, "QUEST ACCEPTED: ")
-		if !ok {
-			return "OK Quest not accepted"
+		if questgiver.Quest_done {
+			return "ERR 406 NO_QUEST_AVAILABLE"
+		}
+		quest := questgiver.Name + "'s quest"
+		if _, ok := player.Quests[quest]; ok {
+			return "ERR 458 QUEST_ALREADY_ACCEPTED"
 		}
 		player.Quests[quest] = questgiver.Description
+		return "OK quest=" + quest
 	}
-	return "OK " + nextNode.Text
+	return "ERR 404 NPC_NOT_FOUND"
 }
 
 func (g *Game) Quests(conn net.Conn, parts []string) string {
@@ -79,14 +41,14 @@ func (g *Game) Quests(conn net.Conn, parts []string) string {
 
 	player := g.Clients[conn].Player
 	if len(player.Quests) == 0 {
-		return "OK no active quest"
+		return "ERR 405 NO_ACTIVE_QUEST"
 	}
 
 	lines := []string{}
 	for quest, description := range player.Quests {
 		lines = append(lines, quest+": "+description)
 	}
-	return "OK " + strings.Join(lines, "\n")
+	return "OK quests=" + strings.Join(lines, "\n")
 }
 
 func (g *Game) CompleteQuest(conn net.Conn, parts []string) string {
@@ -121,10 +83,11 @@ func (g *Game) CompleteQuest(conn net.Conn, parts []string) string {
 					for i := range room.Questgivers {
 						if room.Questgivers[i].Name == "fouras" {
 							room.Questgivers[i].Quest_done = true
+							// room.Questgivers[i].PlayerAlreadyFinish = append(room.Questgivers[i].PlayerAlreadyFinish, player.Name)
 							break
 						}
 					}
-					return "Quest finished, nice job!\nYou have received key fragment two"
+					return "OK complete=" + quest + "\nQuest finished, nice job!\nYou have received key fragment two"
 				} else {
 					return "ERR 456 CANT_FINISH_QUEST"
 				}
@@ -144,10 +107,11 @@ func (g *Game) CompleteQuest(conn net.Conn, parts []string) string {
 				for i := range room.Questgivers {
 					if room.Questgivers[i].Name == "gatekeeper" {
 						room.Questgivers[i].Quest_done = true
+						// room.Questgivers[i].PlayerAlreadyFinish = append(room.Questgivers[i].PlayerAlreadyFinish, player.Name)
 						break
 					}
 				}
-				return "Quest finished, you can now enter the dungeon"
+				return "OK complete=" + quest + "\nQuest finished, you can now enter the dungeon"
 
 			case "Alfred the innkeeper's quest":
 				for item := range player.Inventory {
@@ -166,10 +130,11 @@ func (g *Game) CompleteQuest(conn net.Conn, parts []string) string {
 					for i := range room.Questgivers {
 						if room.Questgivers[i].Name == "Alfred the innkeeper" {
 							room.Questgivers[i].Quest_done = true
+							// room.Questgivers[i].PlayerAlreadyFinish = append(room.Questgivers[i].PlayerAlreadyFinish, player.Name)
 							break
 						}
 					}
-					return "Quest finished, nice job!\nYou have received trophy"
+					return "OK complete=" + quest + "\nQuest finished, nice job!\nYou have received trophy"
 				} else {
 					return "ERR 456 CANT_FINISH_QUEST"
 				}
@@ -195,7 +160,7 @@ func (g *Game) AbandonQuest(conn net.Conn, parts []string) string {
 			switch quest {
 			case "fouras's quest":
 				delete(player.Quests, quest)
-				return "Quest abandoned: " + quest
+				return "OK abandon=" + quest
 			}
 		}
 	}

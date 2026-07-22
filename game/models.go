@@ -11,21 +11,20 @@ type Client struct {
 }
 
 type Player struct {
-	Name               string
-	Room               string
-	Inventory          map[string]Item
-	Group              *Group
-	Invites            []string
-	TalkingNpc         string
-	DialogueNode       string
-	Hp                 int
-	Max_hp             int
-	Status             string
-	Damage             int
-	Weapon             Item
-	Equipped           bool
-	Quests             map[string]string
-	TalkingQuestgiver  string
+	Name         string
+	Room         string
+	Inventory    map[string]Item
+	Group        *Group
+	Invites      []string
+	TalkingNpc   string
+	DialogueNode string
+	Hp           int
+	Max_hp       int
+	Status       string
+	Damage       int
+	Weapon       Item
+	Equipped     bool
+	Quests       map[string]string
 }
 
 type Item struct {
@@ -46,14 +45,16 @@ type Npc struct {
 	Start         string                  `json:"start"`
 	Nodes         map[string]DialogueNode `json:"nodes"`
 	Dialogue_done bool
+	AlreadyTalkTo []string
 }
 
 type Questgiver struct {
-	Name        string                  `json:"name"`
-	Start       string                  `json:"start"`
-	Description string                  `json:"description"`
-	Nodes       map[string]DialogueNode `json:"nodes"`
-	Quest_done  bool
+	Name                string                  `json:"name"`
+	Start               string                  `json:"start"`
+	Description         string                  `json:"description"`
+	Nodes               map[string]DialogueNode `json:"nodes"`
+	Quest_done          bool
+	PlayerAlreadyFinish []string
 }
 
 type Room struct {
@@ -87,12 +88,12 @@ type RoomResponse struct {
 }
 
 type LookResponse struct {
-	Room        RoomResponse      `json:"room"`
-	Players     []string          `json:"players"`
-	Items       []string          `json:"items"`
-	NPCs        []string          `json:"npcs"`
-	Monsters    []string          `json:"monsters"`
-	Questgivers []string          `json:"questgivers"`
+	Room        RoomResponse `json:"room"`
+	Players     []string     `json:"players"`
+	Items       []string     `json:"items"`
+	NPCs        []string     `json:"npcs"`
+	Monsters    []string     `json:"monsters"`
+	Questgivers []string     `json:"questgivers"`
 }
 
 type StatusResponse struct {

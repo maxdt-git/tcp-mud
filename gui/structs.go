@@ -1,24 +1,78 @@
 package main
 
-import "fyne.io/fyne/v2/widget"
+import (
+	"tap/game"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/widget"
+)
 
 type UI struct {
-	RoomTitle       *widget.Label
-	RoomDescription *widget.Label
+	RoomTitle       *canvas.Text
+	RoomDescription *canvas.Text
 
-	Players         []string
-	PlayersList     *widget.List
+	Players     []string
+	PlayersList *widget.List
 
 	Monsters        []string
 	MonstersList    *widget.List
+	SelectedMonster string
 
-	Items           []string
-	ItemsList       *widget.List
+	Items        []string
+	ItemsList    *widget.List
+	SelectedItem string
 
-	Response        *widget.Label
+	Inventory         []InventoryEntry
+	InventoryList     *widget.List
+	SelectedInventory string
+	InventoryVisible  bool
 
-	Exits           []string
-	MoveButton      *widget.Button
+	Response    *widget.Label
+	Npcs        []string
+	NpcsList    *widget.List
+	SelectedNpc string
 
-	ConnectButton   *widget.Button
+	Exits      []string
+	MoveButton *widget.Button
+
+	ConnectButton *widget.Button
+
+	QuestgiversList    *widget.List
+	Questgivers        []string
+	SelectedQuestgiver string
+
+	Quests        []string
+	QuestsList    *widget.List
+	SelectedQuest string
+
+	Dialogue    bool
+	AnswerEntry *widget.Entry
+
+	StatusVisible bool
+	HpLabel       *widget.Label
+	MaxHpLabel    *widget.Label
+	StatusLabel   *widget.Label
+
+	Group          []string
+	GroupList      *widget.List
+	SelectedPlayer string
+
+	Invites        []string
+	InviteList     *widget.List
+	SelectedInvite string
+
+	PlayerName    string
+	Chat          []string
+	ChatContainer *fyne.Container
+	ChatBox       *fyne.Container
+	ChatEntry     *widget.Entry
+
+	MonsterHp  *widget.Label
+	CounterAtk *widget.Label
+}
+
+type InventoryEntry struct {
+	Name string
+	Item game.Item
 }

@@ -167,7 +167,19 @@ func (g *Game) GroupLeave(conn net.Conn) string {
 		delete(g.Groups, group_name)
 	}
 	player.Group = nil
-	return "OK"
+	return "OK group left"
+}
+
+func (g *Game) GroupMem(conn net.Conn) string {
+	player_name := g.Clients[conn].Player.Name
+	player := g.Players[player_name]
+	group := player.Group
+	res := "OK members="
+
+	for i := range group.Members {
+		res += " " + group.Members[i].Name
+	}
+	return res
 }
 
 // end group functions
