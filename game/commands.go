@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -40,19 +41,27 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 	g.Rooms["1"].Players = append(g.Rooms["1"].Players, g.Players[name])
 	player_name := g.Clients[conn].Player.Name
 	player_room := g.Clients[conn].Player.Room
+	g.PCount = 1
 	if len(g.Clients) > 0 {
 		for i := range g.Clients {
 			if g.Clients[i].Player == nil {
 				continue
 			}
 			if g.Clients[i].Player.Name != player_name {
+				g.PCount += 1
 				if g.Clients[i].Player.Room == player_room {
 					fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE ENTER "+player_name)
 				}
 			}
 		}
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			fmt.Fprintln(g.Clients[i].Conn, "EVT STATS players="+strconv.Itoa(g.PCount))
+		}
 	}
-	return "OK connected " + name
+	return "OK connected"
 }
 
 func (g *Game) Status(conn net.Conn) string {
@@ -131,7 +140,8 @@ func (g *Game) Who(conn net.Conn) string {
 	for name := range g.Players {
 		names = append(names, name)
 	}
-	return "OK players=" + strings.Join(names, ",")
+	nb := strconv.Itoa(len(names))
+	return "OK players=" + nb
 }
 
 func (g *Game) Move(conn net.Conn, parts []string) string {
@@ -294,10 +304,17 @@ func (g *Game) Quit(conn net.Conn) string {
 		}
 		g.GroupLeave(conn)
 		delete(g.Players, client.Player.Name) // delete removes the g.players in key client.Player.Name
+		g.PCount -= 1
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			fmt.Fprintln(g.Clients[i].Conn, "EVT STATS players="+strconv.Itoa(g.PCount))
+		}
 	}
 
 	delete(g.Clients, conn)
-	return "OK leaving game"
+	return "OK bye"
 }
 
 func (g *Game) Take(conn net.Conn, parts []string) string {
@@ -326,6 +343,14 @@ func (g *Game) Take(conn net.Conn, parts []string) string {
 		} else {
 			g.Clients[conn].Player.Inventory[item] = room.Items[item]
 			delete(room.Items, item)
+			for i := range g.Clients {
+				if g.Clients[i].Player == nil {
+					continue
+				}
+				if g.Clients[i].Player.Room == player_room && g.Clients[i].Player.Name != player_name {
+					fmt.Fprintln(g.Clients[i].Conn, "EVT ITEM TAKEN "+item)
+				}
+			}
 			return "OK taken=" + item
 		}
 	}
@@ -334,6 +359,7 @@ func (g *Game) Take(conn net.Conn, parts []string) string {
 
 func (g *Game) Drop(conn net.Conn, parts []string) string {
 	player_room := g.Clients[conn].Player.Room
+	player_name := g.Clients[conn].Player.Name
 	room := g.Rooms[player_room]
 	if len(parts) < 2 {
 		return "ERR 407 MISSING_ITEM_NAME"
@@ -343,6 +369,14 @@ func (g *Game) Drop(conn net.Conn, parts []string) string {
 	if ok {
 		room.Items[item] = g.Clients[conn].Player.Inventory[item]
 		delete(g.Clients[conn].Player.Inventory, item)
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Room == player_room && g.Clients[i].Player.Name != player_name {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT ITEM DROPPED "+item)
+			}
+		}
 		return "OK dropped=" + item
 	}
 	return "ERR 404 ITEM_NOT_IN_INVENTORY"

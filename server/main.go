@@ -4,20 +4,26 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"tap/game"
+	"time"
 )
 
 func handleCommand(command string, conn net.Conn, game *game.Game) string {
+	if len(command) > 1024 {
+		return "ERR 499 LINE_TOO_LONG"
+	}
+
 	parts := strings.Fields(command)
 
 	if len(parts) == 0 {
-		return "ERR empty_command"
+		return "ERR 407 EMPTY_COMMAND"
 	}
 
 	if parts[0] != "CONNECT" {
 		if game.Clients[conn].Player == nil {
-			return "ERR connect first"
+			return "ERR 480 CONNECT FIRST"
 		}
 	}
 
@@ -30,7 +36,7 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 			parts[0] != "QUIT" &&
 			parts[0] != "STATUS" &&
 			parts[0] != "USE" {
-			return "ERR PLAYER_IN_COMBAT"
+			return "ERR 485 PLAYER_IN_COMBAT"
 		}
 	}
 
@@ -102,12 +108,24 @@ func handleCommand(command string, conn net.Conn, game *game.Game) string {
 		return game.GroupMem(conn)
 
 	default:
-		return "ERR unknown_command"
+		return "ERR 518 UNKNOWN_COMMAND"
 	}
 }
 
 func handle(conn net.Conn, game *game.Game) {
-	defer conn.Close()
+	defer func() {
+		client, exists := game.Clients[conn]
+
+		if exists && client != nil && client.Player != nil {
+			game.Quit(conn)
+		}
+
+		delete(game.Clients, conn)
+		conn.Close()
+		times := time.Now()
+		fmt.Printf("%dh %dm %ds ", times.Hour(), times.Minute(), times.Second())
+		fmt.Println("Client disconnected:", conn.RemoteAddr())
+	}()
 
 	reader := bufio.NewReader(conn)
 	for {
@@ -121,8 +139,11 @@ func handle(conn net.Conn, game *game.Game) {
 		}
 		command := strings.TrimSpace(message)
 		response := handleCommand(command, conn, game)
-
-		fmt.Fprintln(conn, response)
+		times := time.Now()
+		h := strconv.Itoa(times.Hour())
+		m := strconv.Itoa(times.Minute())
+		s := strconv.Itoa(times.Second())
+		fmt.Fprintln(conn, response+" @["+h+":"+m+":"+s+"]")
 
 		if command == "QUIT" {
 			return
@@ -156,9 +177,19 @@ func main() {
 			fmt.Println("Accept error:", err)
 			continue
 		}
+		g.Mutex.Lock()
+		if len(g.Clients) >= 5 {
+			g.Mutex.Unlock()
+			fmt.Fprintln(conn, "ERR server_full")
+			conn.Close()
+			continue
+		}
+		g.Mutex.Unlock()
 		g.Clients[conn] = &game.Client{
 			Conn: conn,
 		}
+		times := time.Now()
+		fmt.Printf("%dh %dm %ds ", times.Hour(), times.Minute(), times.Second())
 		fmt.Println("Client connected:", conn.RemoteAddr())
 		go handle(conn, g) // starts a go routine and returns to the loop
 	}

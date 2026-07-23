@@ -30,7 +30,7 @@
                 "start": "greet",
                 "nodes": {
                     "greet": {
-                        "text": "Welcome to Devas's forrest!\nTo begin, I have an enigm for you, will you be able to find the response?",
+                        "text": "Welcome to Devas's forest! To begin, I have an enigm for you, will you be able to find the response?",
                         "responses": { "yes": "riddle", "no": "leave" }
                     },
                     "riddle": {
@@ -250,6 +250,7 @@
             {
                 "name": "gatekeeper",
                 "start": "greet",
+                "description": "Kill all the monsters outside the dungeon",
                 "nodes": {
                     "greet": {
                         "text": "gatekeeper's quest",

@@ -27,7 +27,7 @@ func (g *Game) Chat(conn net.Conn, parts []string) string {
 
 func (g *Game) ChatGlobal(conn net.Conn, parts []string) string {
 	if len(parts) < 3 {
-		return "ERROR 407 MISSING_MESSAGE"
+		return "ERR 407 MISSING_MESSAGE"
 	}
 
 	player_name := g.Clients[conn].Player.Name
@@ -45,7 +45,7 @@ func (g *Game) ChatGlobal(conn net.Conn, parts []string) string {
 
 func (g *Game) ChatRoom(conn net.Conn, parts []string) string {
 	if len(parts) < 3 {
-		return "ERROR 407 MISSING_MESSAGE"
+		return "ERR 407 MISSING_MESSAGE"
 	}
 
 	player_name := g.Clients[conn].Player.Name
@@ -66,7 +66,7 @@ func (g *Game) ChatRoom(conn net.Conn, parts []string) string {
 
 func (g *Game) ChatGroup(conn net.Conn, parts []string) string {
 	if len(parts) < 3 {
-		return "ERROR 407 MISSING_MESSAGE"
+		return "ERR 407 MISSING_MESSAGE"
 	}
 
 	player_name := g.Clients[conn].Player.Name

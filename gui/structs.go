@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -28,7 +29,9 @@ type UI struct {
 	SelectedInventory string
 	InventoryVisible  bool
 
-	Response    *widget.Label
+	Response       *widget.Label
+	ScrollResponse *container.Scroll
+
 	Npcs        []string
 	NpcsList    *widget.List
 	SelectedNpc string
@@ -48,9 +51,10 @@ type UI struct {
 
 	Dialogue    bool
 	AnswerEntry *widget.Entry
+	ScrollChat  *container.Scroll
 
 	StatusVisible bool
-	HpLabel       *widget.Label
+	HpLabel       *canvas.Text
 	MaxHpLabel    *widget.Label
 	StatusLabel   *widget.Label
 

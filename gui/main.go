@@ -27,6 +27,7 @@ func connectToServer(address string) (net.Conn, error) {
 func readServer(
 	conn net.Conn,
 	ui *UI,
+	myApp fyne.App,
 ) {
 	reader := bufio.NewReader(conn)
 
@@ -62,8 +63,8 @@ func readServer(
 		case strings.HasPrefix(message, `OK used=`):
 			handleUsedResponse(message, ui, conn)
 
-		case strings.HasPrefix(message, `OK quests=`):
-			handleQuestsResponse(message, ui)
+		// case strings.HasPrefix(message, `OK quests=`):
+		// 	handleQuestsResponse(message, ui)
 
 		case strings.HasPrefix(message, `OK dropped=`):
 			handleDropResponse(message, ui, conn)
@@ -106,6 +107,19 @@ func readServer(
 
 		case strings.HasPrefix(message, `EVT GROUP CHAT`):
 			handleChatGlobal(message, ui)
+
+		case strings.HasPrefix(message, `EVT MONSTER DEAD`):
+			handleRefresh(conn, ui)
+
+		case strings.HasPrefix(message, `EVT PLAYER DEAD`):
+			handleRefresh(conn, ui)
+
+		case strings.HasPrefix(message, `EVT ITEM TAKEN`):
+			handleRefresh(conn, ui)
+
+		case strings.HasPrefix(message, `EVT ITEM DROPPED`):
+			handleRefresh(conn, ui)
+
 		case strings.HasPrefix(message, `OK end=`):
 			handleTalkResponse(ui)
 
@@ -117,6 +131,9 @@ func readServer(
 
 		case strings.HasPrefix(message, `OK abandon=`):
 			handleAbandonquestResponse(message, ui)
+
+		case strings.HasPrefix(message, `OK bye`):
+			handleQuit(myApp)
 
 		}
 
@@ -132,7 +149,7 @@ func readServer(
 			})
 		} else {
 			fyne.Do(func() {
-				ui.Response.SetText("OK")
+				ui.Response.SetText(message)
 			})
 		}
 	}
@@ -171,7 +188,7 @@ func main() {
 		InventoryVisible: false,
 
 		StatusVisible: false,
-		HpLabel:       widget.NewLabel(""),
+		HpLabel:       canvas.NewText("", color.RGBA{0, 255, 100, 255}),
 		MaxHpLabel:    widget.NewLabel(""),
 		StatusLabel:   widget.NewLabel(""),
 		MonsterHp:     widget.NewLabel(""),
@@ -180,8 +197,10 @@ func main() {
 	// STYLE
 	ui.RoomTitle.TextSize = 28
 	ui.RoomTitle.TextStyle.Bold = true
+	ui.RoomTitle.Color = color.RGBA{255, 131, 182, 255}
 	ui.RoomDescription.TextSize = 24
 	ui.RoomDescription.TextStyle.Italic = true
+	ui.Response.Wrapping = fyne.TextWrapWord
 	// CREATE LISTS
 	ui.PlayersList = CreatePlayerList(ui)
 	ui.GroupList = CreateGroupList(ui)
@@ -205,6 +224,7 @@ func main() {
 	go readServer(
 		conn,
 		ui,
+		myApp,
 	)
 	// CREATE BUTTONS
 	fourButtons := container.NewVBox()
@@ -225,6 +245,7 @@ func main() {
 	buttonCreate := CreateButtonCreate(ui, conn)
 	buttonLeave := CreateButtonGroupLeave(ui, conn)
 	buttonJoin := CreateButtonGroupJoin(ui, conn)
+	buttonQuit := CreateButtonQuit(ui, conn)
 
 	entry := widget.NewEntry()
 	entry.SetPlaceHolder("Enter player name")
@@ -312,6 +333,7 @@ func main() {
 	questsContainer := CreateContainerQuest(ui)
 	InviteContainer := CreateContainerInvites(ui)
 	CreateContainerChat(ui, conn)
+	CreateContainerResponse(ui, conn)
 	questgiversContainer := CreateContainerQuestgiver(ui)
 	//
 	// CLEAN
@@ -323,16 +345,17 @@ func main() {
 	midsecond := container.NewHBox(npcsContainer, questgiversContainer, inventoryContainer, InviteContainer)
 	midcontainer := container.NewVBox(midfirst, midsecond)
 
-	center_res := container.NewCenter(ui.Response)
+	// center_res := container.NewCenter(ui.ScrollResponse)
 	hContainer := container.New(layout.NewCenterLayout(), ui.RoomTitle)
 	h2Container := container.New(layout.NewCenterLayout(), ui.RoomDescription)
 	hZone := container.NewBorder(hContainer, h2Container, nil, nil, nil)
 	headerMargin := container.NewVBox(space, hZone, space)
-	buttons := container.New(layout.NewGridLayout(4), buttonLook, buttonWho, buttonConnect, buttonMove, buttonUse, buttonTalk, buttonTake, buttonAttack, buttonQuest, buttonQuests, buttonCompleteQuests, buttonAbandonQuests, buttonInventory, buttonDrop, buttonStatus, buttonCreate, buttonLeave, buttonInvite, buttonJoin)
-	center_zone := container.NewVBox(center_res, fourButtons, entry, answer, combatDisplay, GroupContainer, ui.ChatContainer)
+	buttons := container.New(layout.NewGridLayout(4), buttonLook, buttonWho, buttonConnect, buttonMove, buttonUse, buttonTalk, buttonTake, buttonAttack, buttonQuest, buttonQuests, buttonCompleteQuests, buttonAbandonQuests, buttonInventory, buttonDrop, buttonStatus, buttonCreate, buttonLeave, buttonInvite, buttonJoin, buttonQuit)
+	center_zone := container.NewVBox(ui.ScrollResponse, fourButtons, entry, answer, combatDisplay, GroupContainer, ui.ChatContainer)
 	content := container.NewBorder(headerMargin, buttons, nil, midcontainer, center_zone)
 	myWindow.Resize(fyne.NewSize(1200, 1200))
 	myWindow.SetContent(content)
+	myWindow.SetFixedSize(true)
 
 	myWindow.ShowAndRun()
 }

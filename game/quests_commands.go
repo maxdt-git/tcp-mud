@@ -45,10 +45,10 @@ func (g *Game) Quests(conn net.Conn, parts []string) string {
 	}
 
 	lines := []string{}
-	for quest, description := range player.Quests {
-		lines = append(lines, quest+": "+description)
+	for quest := range player.Quests {
+		lines = append(lines, quest+": "+player.Quests[quest])
 	}
-	return "OK quests=" + strings.Join(lines, "\n")
+	return "OK quests=" + strings.Join(lines, " || ")
 }
 
 func (g *Game) CompleteQuest(conn net.Conn, parts []string) string {
@@ -159,6 +159,12 @@ func (g *Game) AbandonQuest(conn net.Conn, parts []string) string {
 		if input == quest {
 			switch quest {
 			case "fouras's quest":
+				delete(player.Quests, quest)
+				return "OK abandon=" + quest
+			case "gatekeeper's quest":
+				delete(player.Quests, quest)
+				return "OK abandon=" + quest
+			case "Alfred the innkeeper's quest":
 				delete(player.Quests, quest)
 				return "OK abandon=" + quest
 			}

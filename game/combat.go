@@ -2,6 +2,7 @@ package game
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 )
@@ -65,6 +66,15 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 			player_Room.Items[i] = desc
 			delete(player.Inventory, i)
 		}
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+monster_name)
+				fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
+			}
+		}
 		player.Room = "1"
 		// REMOVE PLAYER FROM ROOM
 		for i, p := range player_Room.Players {
@@ -86,6 +96,14 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		player_Room.Monsters[monster_id].InCombat = false
 		player_Room.Monsters[monster_id].Name = "dead " + player_Room.Monsters[monster_id].Name
 		player.Status = "healthy"
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+monster_name)
+			}
+		}
 		return "OK combat=" + old_name + " defeated"
 	}
 
@@ -103,6 +121,14 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		for i, desc := range player.Inventory {
 			player_Room.Items[i] = desc
 			delete(player.Inventory, i)
+		}
+		for i := range g.Clients {
+			if g.Clients[i].Player == nil {
+				continue
+			}
+			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
+			}
 		}
 		player.Room = "1"
 		// REMOVE PLAYER FROM ROOM
@@ -199,6 +225,9 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 			if id == -1 {
 				return "ERR 429 CANT_USE_NOW"
 			}
+			if player_Room.Monsters[id].Fighting == nil {
+				return "ERR 429 CANT_USE_NOW"
+			}
 
 			if player.Status == "combat" && player_Room.Monsters[id].Fighting.Name == player_name {
 				old_name := player_Room.Monsters[id].Name
@@ -208,6 +237,14 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 				player_Room.Monsters[id].Name = "dead " + player_Room.Monsters[id].Name
 				player.Status = "healthy"
 				delete(player.Inventory, "spider fang")
+				for i := range g.Clients {
+					if g.Clients[i].Player == nil {
+						continue
+					}
+					if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+						fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+old_name)
+					}
+				}
 				return "OK " + old_name + " defeated"
 			}
 
@@ -296,6 +333,15 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 						player_Room.Items[i] = desc
 						delete(player.Inventory, i)
 					}
+					for i := range g.Clients {
+						if g.Clients[i].Player == nil {
+							continue
+						}
+						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+player_Room.Monsters[id].Name)
+							fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
+						}
+					}
 					player.Room = "1"
 					// REMOVE PLAYER FROM ROOM
 					for i, p := range player_Room.Players {
@@ -317,6 +363,14 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 					player_Room.Monsters[id].InCombat = false
 					player_Room.Monsters[id].Name = "dead " + player_Room.Monsters[id].Name
 					player.Status = "healthy"
+					for i := range g.Clients {
+						if g.Clients[i].Player == nil {
+							continue
+						}
+						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+player_Room.Monsters[id].Name)
+						}
+					}
 					return "OK " + old_name + " defeated"
 				}
 
@@ -334,6 +388,14 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 					for i, desc := range player.Inventory {
 						player_Room.Items[i] = desc
 						delete(player.Inventory, i)
+					}
+					for i := range g.Clients {
+						if g.Clients[i].Player == nil {
+							continue
+						}
+						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
+						}
 					}
 					player.Room = "1"
 					// REMOVE PLAYER FROM ROOM

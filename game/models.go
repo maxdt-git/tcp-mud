@@ -78,6 +78,7 @@ type Game struct {
 	Clients map[net.Conn]*Client
 	Rooms   map[string]*Room
 	Groups  map[string]*Group
+	PCount  int
 }
 
 type RoomResponse struct {

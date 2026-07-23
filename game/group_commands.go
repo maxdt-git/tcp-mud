@@ -134,7 +134,7 @@ func (g *Game) GroupLeave(conn net.Conn) string {
 	player := g.Players[player_name]
 
 	if player.Group == nil {
-		return "401	NOT_IN_GROUP"
+		return "ERR 401 NOT_IN_GROUP"
 	}
 	group := player.Group
 	group_name := group.ID
@@ -167,7 +167,7 @@ func (g *Game) GroupLeave(conn net.Conn) string {
 		delete(g.Groups, group_name)
 	}
 	player.Group = nil
-	return "OK group left"
+	return "OK"
 }
 
 func (g *Game) GroupMem(conn net.Conn) string {

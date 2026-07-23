@@ -30,7 +30,7 @@ func handleTakeResponse(message string, ui *UI, conn net.Conn) {
 		}
 		fmt.Fprintln(conn, "INVENTORY")
 		ui.SelectedItem = ""
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
@@ -46,7 +46,7 @@ func handleUsedResponse(message string, ui *UI, conn net.Conn) {
 	fyne.Do(func() {
 		fmt.Fprintln(conn, "INVENTORY")
 		fmt.Fprintln(conn, "STATUS")
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
@@ -55,13 +55,14 @@ func handleDropResponse(message string, ui *UI, conn net.Conn) {
 	fyne.Do(func() {
 		fmt.Fprintln(conn, "INVENTORY")
 		fmt.Fprintln(conn, "LOOK")
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
 
 func handleStatusResponse(message string, ui *UI) {
 	jsonData := strings.TrimPrefix(message, "OK status=")
+	jsonData, _, _ = strings.Cut(jsonData, "@")
 
 	var response game.StatusResponse
 
@@ -72,7 +73,7 @@ func handleStatusResponse(message string, ui *UI) {
 	}
 
 	fyne.Do(func() {
-		ui.HpLabel.SetText("Hp = " + strconv.Itoa(response.Hp))
+		ui.HpLabel.Text = ("Hp = " + strconv.Itoa(response.Hp))
 		ui.MaxHpLabel.SetText("MaxHP = " + strconv.Itoa(response.Max_hp))
 		ui.StatusLabel.SetText("Status = " + response.Status)
 
@@ -84,7 +85,7 @@ func handleStatusResponse(message string, ui *UI) {
 		ui.MaxHpLabel.Refresh()
 		ui.StatusLabel.Refresh()
 
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
@@ -92,6 +93,7 @@ func handleStatusResponse(message string, ui *UI) {
 func handleAttackResponse(message string, ui *UI, conn net.Conn) {
 	if strings.Contains(message, "target_hp") {
 		jsonData := strings.TrimPrefix(message, "OK combat=")
+		jsonData, _, _ = strings.Cut(jsonData, "@")
 		var response game.CombatResponse
 
 		err := json.Unmarshal([]byte(jsonData), &response)
@@ -112,7 +114,7 @@ func handleAttackResponse(message string, ui *UI, conn net.Conn) {
 			ui.CounterAtk.Show()
 			fmt.Fprintln(conn, "STATUS")
 			ui.MonstersList.Refresh()
-			ui.Response.SetText(message)
+			ui.Response.Text = message
 			UnselectAll(ui)
 		})
 	} else {
@@ -123,7 +125,7 @@ func handleAttackResponse(message string, ui *UI, conn net.Conn) {
 				ui.MonstersList.UnselectAll()
 			}
 			fmt.Fprintln(conn, "STATUS")
-			ui.Response.SetText(message)
+			ui.Response.Text = message
 			UnselectAll(ui)
 		})
 	}
@@ -139,13 +141,14 @@ func handleCreateResponse(message string, ui *UI) {
 			}
 		}
 		ui.Group = append(ui.Group, ui.PlayerName)
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
 
 func handleInvResponse(message string, ui *UI) {
 	jsonData := strings.TrimPrefix(message, "OK inventory=")
+	jsonData, _, _ = strings.Cut(jsonData, "@")
 
 	var response map[string]game.Item
 
@@ -166,7 +169,7 @@ func handleInvResponse(message string, ui *UI) {
 	fyne.Do(func() {
 		ui.Inventory = inventory
 		ui.SelectedInventory = ""
-		ui.Response.SetText(message)
+		ui.Response.Text = message
 		UnselectAll(ui)
 	})
 }
@@ -176,6 +179,7 @@ func handleLookResponse(
 	ui *UI,
 ) {
 	jsonData := strings.TrimPrefix(message, "OK ")
+	jsonData, _, _ = strings.Cut(jsonData, "@")
 
 	var response game.LookResponse
 
@@ -213,23 +217,23 @@ func handleLookResponse(
 	})
 }
 
-func handleQuestsResponse(
-	message string,
-	ui *UI,
-) {
-	text := strings.TrimPrefix(message, "OK quests=")
+// func handleQuestsResponse(
+// 	message string,
+// 	ui *UI,
+// ) {
+// 	text := strings.TrimPrefix(message, "OK quests=")
 
-	lines := strings.Split(text, "\n")
-	quests := make([]string, len(lines))
-	for i, line := range lines {
-		quests[i] = strings.SplitN(line, ": ", 2)[0]
-	}
+// 	lines := strings.Split(text, "\n")
+// 	quests := make([]string, len(lines))
+// 	for i, line := range lines {
+// 		quests[i] = strings.SplitN(line, ": ", 2)[0]
+// 	}
 
-	fyne.Do(func() {
-		ui.Quests = quests
-		UnselectAll(ui)
-	})
-}
+// 	fyne.Do(func() {
+// 		ui.Quests = quests
+// 		UnselectAll(ui)
+// 	})
+// }
 
 func handleGroupJResponse(
 	message string,
@@ -334,6 +338,7 @@ func handleChatGlobal(
 		label.Wrapping = fyne.TextWrapWord
 		ui.ChatBox.Add(label)
 		ui.ChatContainer.Refresh()
+		ui.ScrollChat.ScrollToBottom()
 	})
 }
 
@@ -353,6 +358,8 @@ func handleQuestResponse(
 	ui *UI,
 ) {
 	quest := strings.TrimPrefix(message, "OK quest=")
+	quest, _, _ = strings.Cut(quest, "@")
+	quest, _ = strings.CutSuffix(quest, " ")
 
 	fyne.Do(func() {
 		ui.SelectedQuestgiver = ""
@@ -369,7 +376,6 @@ func handleCompletequestResponse(
 	text := strings.TrimPrefix(message, "OK complete=")
 	quest := strings.SplitN(text, "\n", 2)[0]
 
-	fmt.Println(quest)
 	fyne.Do(func() {
 		for i, q := range ui.Quests {
 			if q == quest {
@@ -419,6 +425,7 @@ func handleFireball(
 ) {
 	if strings.Contains(message, "target_hp") {
 		jsonData := strings.TrimPrefix(message, "OK used=firescroll ")
+		jsonData, _, _ = strings.Cut(jsonData, "@")
 		var response game.CombatResponse
 
 		err := json.Unmarshal([]byte(jsonData), &response)
@@ -440,7 +447,7 @@ func handleFireball(
 			fmt.Fprintln(conn, "STATUS")
 			ui.InventoryList.Refresh()
 			ui.MonstersList.Refresh()
-			ui.Response.SetText(message)
+			ui.Response.Text = message
 			UnselectAll(ui)
 		})
 	}
@@ -452,4 +459,13 @@ func handleFireball(
 		ui.MonsterHp.Refresh()
 		ui.CounterAtk.Refresh()
 	})
+}
+
+func handleQuit(MyApp fyne.App) {
+	MyApp.Quit()
+}
+
+func handleRefresh(conn net.Conn, ui *UI) {
+	fmt.Fprintln(conn, "LOOK")
+	UnselectAll(ui)
 }

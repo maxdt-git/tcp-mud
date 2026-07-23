@@ -221,12 +221,15 @@ func CreateContainerChat(ui *UI, conn net.Conn) {
 		label := widget.NewLabel(ui.Chat[i])
 		ui.ChatBox.Add(label)
 	}
+	ui.ScrollChat = container.NewVScroll(ui.ChatBox)
+	ui.ScrollChat.SetMinSize(fyne.NewSize(180, 220))
+
 	globalButton := CreateButtonChatGlobal(ui, conn)
 	roomButton := CreateButtonChatRoom(ui, conn)
 	groupButton := CreateButtonChatGroup(ui, conn)
 	buttonContainer := container.NewGridWithColumns(3, globalButton, roomButton, groupButton)
 	bottomContainer := container.NewBorder(ui.ChatEntry, buttonContainer, nil, nil, nil)
-	ui.ChatContainer = container.NewBorder(chatTitle, bottomContainer, nil, nil, ui.ChatBox)
+	ui.ChatContainer = container.NewBorder(chatTitle, bottomContainer, nil, nil, ui.ScrollChat)
 }
 
 func CreateContainerQuestgiver(ui *UI) *fyne.Container {
@@ -251,4 +254,9 @@ func CreateContainerQuestgiver(ui *UI) *fyne.Container {
 		sizedList,
 	)
 	return questgiversContainer
+}
+
+func CreateContainerResponse(ui *UI, conn net.Conn) {
+	ui.ScrollResponse = container.NewVScroll(ui.Response)
+	ui.ScrollResponse.SetMinSize(fyne.NewSize(180, 80))
 }
