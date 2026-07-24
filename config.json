@@ -55,8 +55,8 @@
         "monsters": [
             {
                 "name": "spiderling",
-                "hp": 10,
-                "attack": 2,
+                "hp": 50,
+                "attack": 100,
                 "alive": true,
                 "items": {
                     "vial of venom": {

@@ -141,7 +141,6 @@ func handle(conn net.Conn, game *game.Game) {
 			clientName = client.Player.Name
 		}
 		fmt.Println(times + " <- " + clientName + " " + command)
-
 		response := handleCommand(command, conn, game)
 		fmt.Println(times + " -> " + clientName + " " + response)
 		fmt.Fprintln(conn, response)
