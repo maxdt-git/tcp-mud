@@ -37,7 +37,7 @@ func handleTakeResponse(message string, ui *UI, conn net.Conn) {
 }
 
 func handleConnect(message string, ui *UI) {
-	name := strings.TrimPrefix(message, "OK connected")
+	name := strings.TrimPrefix(message, "OK connected ")
 	fyne.Do(func() {
 		ui.PlayerName = name
 	})
@@ -252,7 +252,7 @@ func handleGroupLResponse(
 	message string,
 	ui *UI,
 ) {
-	text := strings.TrimPrefix(message, "EVT GROUP LEAVE ")
+	text := strings.TrimPrefix(message, "EVT GROUP LEAVE")
 
 	fyne.Do(func() {
 		for i, member := range ui.Group {

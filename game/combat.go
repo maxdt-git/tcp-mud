@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 )
 
 func (g *Game) Attack(conn net.Conn, parts []string) string {
@@ -16,6 +17,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 	player := g.Players[player_name]
 	player_Room := g.Rooms[player.Room]
 	monster_name := strings.Join(parts[1:], " ")
+	times := time.Now().Format("15:04:05")
 
 	// get index of monster
 	monster_id := -1
@@ -82,6 +84,8 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 				continue
 			}
 			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Println(times + " -> " + player_name + " EVT MONSTER DEAD")
+				fmt.Println(times + " -> " + player_name + " EVT PLAYER DEAD")
 				fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+monster_name)
 				fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
 			}
@@ -112,6 +116,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 				continue
 			}
 			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT MONSTER DEAD")
 				fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+monster_name)
 			}
 		}
@@ -138,6 +143,7 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 				continue
 			}
 			if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+				fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT PLAYER DEAD")
 				fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
 			}
 		}
@@ -177,6 +183,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 		return "ERR 407 MISSING_ITEM_NAME"
 	}
 	// var setup
+	times := time.Now().Format("15:04:05")
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
 	player_Room := g.Rooms[player.Room]
@@ -253,6 +260,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 						continue
 					}
 					if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+						fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT MONSTER DEAD")
 						fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+old_name)
 					}
 				}
@@ -349,6 +357,8 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 							continue
 						}
 						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT MONSTER DEAD")
+							fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT PLAYER DEAD")
 							fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+player_Room.Monsters[id].Name)
 							fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
 						}
@@ -379,6 +389,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 							continue
 						}
 						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT MONSTER DEAD")
 							fmt.Fprintln(g.Clients[i].Conn, "EVT MONSTER DEAD "+player_Room.Monsters[id].Name)
 						}
 					}
@@ -405,6 +416,7 @@ func (g *Game) Use(conn net.Conn, parts []string) string {
 							continue
 						}
 						if g.Clients[i].Player.Room == player.Room && g.Clients[i].Player.Name != player_name {
+							fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT PLAYER DEAD")
 							fmt.Fprintln(g.Clients[i].Conn, "EVT PLAYER DEAD "+player_name)
 						}
 					}

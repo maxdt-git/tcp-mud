@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (g *Game) Connect(conn net.Conn, parts []string) string {
@@ -16,6 +17,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 		return "ERR 202 MISSING_NAME"
 	}
 
+	times := time.Now().Format("15:04:05")
 	name := parts[1]
 	_, ok := g.Players[name]
 
@@ -50,6 +52,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 			if g.Clients[i].Player.Name != player_name {
 				g.PCount += 1
 				if g.Clients[i].Player.Room == player_room {
+					fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT ROOM PRESENCE ENTER " + player_name)
 					fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE ENTER "+player_name)
 				}
 			}
@@ -58,10 +61,11 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 			if g.Clients[i].Player == nil {
 				continue
 			}
+			fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT STATS players=" + strconv.Itoa(g.PCount))
 			fmt.Fprintln(g.Clients[i].Conn, "EVT STATS players="+strconv.Itoa(g.PCount))
 		}
 	}
-	return "OK connected" + player_name
+	return "OK connected " + player_name
 }
 
 func (g *Game) Status(conn net.Conn) string {
@@ -148,6 +152,7 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 	if len(parts) < 2 {
 		return "ERR 302 MISSING_DIRECTION"
 	}
+	times := time.Now().Format("15:04:05")
 	direction := parts[1]
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
@@ -167,7 +172,7 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 		if cur_room.Exits[i] == direction {
 			player.Room = cur_room.Neighbours[direction]
 			// EVT presence enter and leave
-			for _, client := range g.Clients {
+			for j, client := range g.Clients {
 				if client == nil || client.Player == nil {
 					continue
 				}
@@ -177,6 +182,7 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 				}
 
 				if client.Player.Room == old_room {
+					fmt.Println(times + " -> " + g.Clients[j].Player.Name + " EVT ROOM PRESENCE LEAVE " + player_name)
 					fmt.Fprintln(
 						client.Conn,
 						"EVT ROOM PRESENCE LEAVE "+player_name,
@@ -184,6 +190,7 @@ func (g *Game) Move(conn net.Conn, parts []string) string {
 				}
 
 				if client.Player.Room == player.Room {
+					fmt.Println(times + " -> " + g.Clients[j].Player.Name + " EVT ROOM PRESENCE ENTER " + player_name)
 					fmt.Fprintln(
 						client.Conn,
 						"EVT ROOM PRESENCE ENTER "+player_name,
@@ -281,6 +288,7 @@ func (g *Game) Quit(conn net.Conn) string {
 	defer g.Mutex.Unlock()
 
 	client := g.Clients[conn]
+	times := time.Now().Format("15:04:05")
 
 	if client != nil && client.Player != nil {
 		player_room := client.Player.Room
@@ -292,6 +300,7 @@ func (g *Game) Quit(conn net.Conn) string {
 			}
 			if g.Clients[i].Player.Name != player_name {
 				if g.Clients[i].Player.Room == player_room {
+					fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT ROOM PRESENCE LEAVE " + player_name)
 					fmt.Fprintln(g.Clients[i].Conn, "EVT ROOM PRESENCE LEAVE "+player_name)
 				}
 			}
@@ -309,6 +318,7 @@ func (g *Game) Quit(conn net.Conn) string {
 			if g.Clients[i].Player == nil {
 				continue
 			}
+			fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT STATS players=" + strconv.Itoa(g.PCount))
 			fmt.Fprintln(g.Clients[i].Conn, "EVT STATS players="+strconv.Itoa(g.PCount))
 		}
 	}
@@ -318,6 +328,7 @@ func (g *Game) Quit(conn net.Conn) string {
 }
 
 func (g *Game) Take(conn net.Conn, parts []string) string {
+	times := time.Now().Format("15:04:05")
 	player_room := g.Clients[conn].Player.Room
 	room := g.Rooms[player_room]
 	player_name := g.Clients[conn].Player.Name
@@ -348,6 +359,7 @@ func (g *Game) Take(conn net.Conn, parts []string) string {
 					continue
 				}
 				if g.Clients[i].Player.Room == player_room && g.Clients[i].Player.Name != player_name {
+					fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT ITEM TAKEN " + item)
 					fmt.Fprintln(g.Clients[i].Conn, "EVT ITEM TAKEN "+item)
 				}
 			}
@@ -358,6 +370,7 @@ func (g *Game) Take(conn net.Conn, parts []string) string {
 }
 
 func (g *Game) Drop(conn net.Conn, parts []string) string {
+	times := time.Now().Format("15:04:05")
 	player_room := g.Clients[conn].Player.Room
 	player_name := g.Clients[conn].Player.Name
 	room := g.Rooms[player_room]
@@ -374,6 +387,7 @@ func (g *Game) Drop(conn net.Conn, parts []string) string {
 				continue
 			}
 			if g.Clients[i].Player.Room == player_room && g.Clients[i].Player.Name != player_name {
+				fmt.Println(times + " -> " + g.Clients[i].Player.Name + " EVT ITEM DROPPED " + item)
 				fmt.Fprintln(g.Clients[i].Conn, "EVT ITEM DROPPED "+item)
 			}
 		}

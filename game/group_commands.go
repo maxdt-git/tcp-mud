@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
 // group functions
@@ -48,6 +49,7 @@ func (g *Game) GroupCreate(conn net.Conn, parts []string) string {
 func (g *Game) GroupInvite(conn net.Conn, parts []string) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
+	times := time.Now().Format("15:04:05")
 
 	if len(parts) < 3 {
 		return "ERR 407 MISSING_PLAYER_NAME"
@@ -79,6 +81,7 @@ func (g *Game) GroupInvite(conn net.Conn, parts []string) string {
 		return "ERR 402 ALREADY_IN_GROUP"
 	}
 	groupName := player.Group.ID
+	fmt.Println(times + " -> " + g.Clients[invite_conn].Player.Name + " EVT GROUP INVITE " + groupName)
 	fmt.Fprintln(invite_conn, "EVT GROUP INVITE "+groupName)
 	g.Players[invite_name].Invites = append(g.Players[invite_name].Invites, groupName)
 	return "OK"
@@ -87,6 +90,7 @@ func (g *Game) GroupInvite(conn net.Conn, parts []string) string {
 func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
+	times := time.Now().Format("15:04:05")
 
 	if len(parts) < 3 {
 		return "ERR 407 MISSING_GROUP_NAME"
@@ -120,6 +124,7 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 			}
 		}
 		for l := range group_conn {
+			fmt.Println(times + " -> " + " EVT GROUP JOIN " + player_name)
 			fmt.Fprintln(group_conn[l], "EVT GROUP JOIN "+player_name)
 		}
 		group.Members[player.Name] = player
@@ -132,6 +137,7 @@ func (g *Game) GroupJoin(conn net.Conn, parts []string) string {
 func (g *Game) GroupLeave(conn net.Conn) string {
 	player_name := g.Clients[conn].Player.Name
 	player := g.Players[player_name]
+	times := time.Now().Format("15:04:05")
 
 	if player.Group == nil {
 		return "ERR 401 NOT_IN_GROUP"
@@ -160,6 +166,7 @@ func (g *Game) GroupLeave(conn net.Conn) string {
 			}
 		}
 		for l := range members_conn {
+			fmt.Println(times + " -> " + " EVT GROUP LEAVE " + player_name)
 			fmt.Fprintln(members_conn[l], "EVT GROUP LEAVE "+player_name)
 		}
 	}
