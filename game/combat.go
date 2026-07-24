@@ -28,6 +28,17 @@ func (g *Game) Attack(conn net.Conn, parts []string) string {
 		}
 	}
 
+	for i := range player_Room.Npcs {
+		if player_Room.Npcs[i].Name == monster_name {
+			return "ERR 405 NPC_NOT_HOSTILE"
+		}
+	}
+	for i := range player_Room.Questgivers {
+		if player_Room.Questgivers[i].Name == monster_name {
+			return "ERR 405 NPC_NOT_HOSTILE"
+		}
+	}
+
 	if monster_id == -1 {
 		return "ERR 404 MONSTER_NOT_FOUND"
 	}
