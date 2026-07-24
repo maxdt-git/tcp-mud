@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"strconv"
 	"strings"
 	"tap/game"
 	"time"
@@ -131,19 +130,21 @@ func handle(conn net.Conn, game *game.Game) {
 	for {
 		message, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("Client disconnected")
-			if game.Clients[conn].Player != nil {
-				game.Quit(conn)
-			}
 			return
 		}
+		times := time.Now().Format("15:04:05")
 		command := strings.TrimSpace(message)
+		clientName := "anonymous"
+		if client, exists := game.Clients[conn]; exists &&
+			client != nil &&
+			client.Player != nil {
+			clientName = client.Player.Name
+		}
+		fmt.Println(times + " <- " + clientName + " " + command)
+
 		response := handleCommand(command, conn, game)
-		times := time.Now()
-		h := strconv.Itoa(times.Hour())
-		m := strconv.Itoa(times.Minute())
-		s := strconv.Itoa(times.Second())
-		fmt.Fprintln(conn, response+" @["+h+":"+m+":"+s+"]")
+		fmt.Println(times + " <- " + clientName + " " + response)
+		fmt.Fprintln(conn, response)
 
 		if command == "QUIT" {
 			return
@@ -191,6 +192,7 @@ func main() {
 		times := time.Now()
 		fmt.Printf("%dh %dm %ds ", times.Hour(), times.Minute(), times.Second())
 		fmt.Println("Client connected:", conn.RemoteAddr())
+		fmt.Fprintln(conn, "OK hello proto=1")
 		go handle(conn, g) // starts a go routine and returns to the loop
 	}
 }

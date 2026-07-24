@@ -61,7 +61,7 @@ func (g *Game) Connect(conn net.Conn, parts []string) string {
 			fmt.Fprintln(g.Clients[i].Conn, "EVT STATS players="+strconv.Itoa(g.PCount))
 		}
 	}
-	return "OK connected"
+	return "OK connected" + player_name
 }
 
 func (g *Game) Status(conn net.Conn) string {

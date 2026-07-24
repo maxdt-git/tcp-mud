@@ -167,7 +167,7 @@ func (g *Game) GroupLeave(conn net.Conn) string {
 		delete(g.Groups, group_name)
 	}
 	player.Group = nil
-	return "OK"
+	return "OK group left"
 }
 
 func (g *Game) GroupMem(conn net.Conn) string {
