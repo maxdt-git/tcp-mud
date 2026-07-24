@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -35,7 +36,8 @@ func (g *Game) GroupCreate(conn net.Conn, parts []string) string {
 	if player.Group != nil {
 		return "ERR 402 ALREADY_IN_GROUP"
 	}
-	group_name := player_name + "party"
+	g.GCount += 1
+	group_name := player_name + "party" + strconv.Itoa(g.GCount)
 	g.Groups[group_name] = &Group{
 		ID:      group_name,
 		Leader:  g.Players[player_name],

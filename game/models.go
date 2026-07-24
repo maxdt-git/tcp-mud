@@ -79,6 +79,7 @@ type Game struct {
 	Rooms   map[string]*Room
 	Groups  map[string]*Group
 	PCount  int
+	GCount  int
 }
 
 type RoomResponse struct {

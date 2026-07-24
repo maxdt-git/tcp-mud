@@ -159,6 +159,7 @@ func main() {
 		Clients: make(map[net.Conn]*game.Client),
 		Rooms:   make(map[string]*game.Room),
 		Groups:  make(map[string]*game.Group),
+		GCount:  0,
 	}
 	// open the json and stock the data in game
 	game.OpenJson(g)
