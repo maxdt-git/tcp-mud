@@ -6,8 +6,7 @@ install:
 	go mod tidy
 	go mod download
 	go mod tidy
-	cd gui
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE) ./gui
 	cd ..
 
 run-server:
