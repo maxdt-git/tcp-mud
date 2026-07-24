@@ -17,6 +17,12 @@ func (g *Game) Quest(conn net.Conn, parts []string) string {
 	room := g.Rooms[player.Room]
 	input := strings.Join(parts[1:], " ")
 
+	for _, npc := range room.Npcs {
+		if npc.Name == input {
+			return "ERR 406 NO_QUEST_AVAILABLE"
+		}
+	}
+
 	for i := range room.Questgivers {
 		questgiver := &room.Questgivers[i]
 		if questgiver.Name != input {
