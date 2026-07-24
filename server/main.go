@@ -143,7 +143,7 @@ func handle(conn net.Conn, game *game.Game) {
 		fmt.Println(times + " <- " + clientName + " " + command)
 
 		response := handleCommand(command, conn, game)
-		fmt.Println(times + " <- " + clientName + " " + response)
+		fmt.Println(times + " -> " + clientName + " " + response)
 		fmt.Fprintln(conn, response)
 
 		if command == "QUIT" {
