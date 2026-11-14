@@ -1,6 +1,4 @@
-*This activity has been created as part of the 42 curriculum by mde-nas, mmonnier.*
-
-# The Answer Protocol (TAP)
+# TCP MUD (TAP)
 
 **Stack:** Go · TCP sockets · goroutines + mutex · Fyne (GUI) · JSON-driven world
 
@@ -15,7 +13,7 @@ and a Fyne-based GUI client, all speaking the same line-oriented protocol.
 
 ## Description
 
-The Answer Protocol is a client/server multiplayer text adventure. Players connect over
+TAP is a client/server multiplayer text adventure. Players connect over
 TCP, explore a shared world of interconnected rooms, fight monsters, talk to NPCs, pick
 up and manage items, form groups, chat, and complete quests. The world state (rooms,
 exits, items, NPCs, monsters, quest givers) is fully data-driven and loaded from a single
