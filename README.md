@@ -1,11 +1,6 @@
-# TCP MUD (TAP)
+*This activity has been created as part of the 42 curriculum by mde-nas, mmonnier.*
 
-**Stack:** Go · TCP sockets · goroutines + mutex · Fyne (GUI) · JSON-driven world
-
-**Highlights**
-- Multiplayer server implementing a formal RFC-style text protocol over TCP
-- One goroutine per client, shared game state protected by a mutex
-- Combat, quests, groups and scoped chat; CLI and graphical clients
+# The Answer Protocol (TAP)
 
 A small shared-world, text-based multiplayer adventure (MUD) built on top of a custom
 TCP protocol, **RFC 42TAP**. The repository contains a Go server, a minimal CLI client,
@@ -13,7 +8,7 @@ and a Fyne-based GUI client, all speaking the same line-oriented protocol.
 
 ## Description
 
-TAP is a client/server multiplayer text adventure. Players connect over
+The Answer Protocol is a client/server multiplayer text adventure. Players connect over
 TCP, explore a shared world of interconnected rooms, fight monsters, talk to NPCs, pick
 up and manage items, form groups, chat, and complete quests. The world state (rooms,
 exits, items, NPCs, monsters, quest givers) is fully data-driven and loaded from a single
@@ -233,8 +228,8 @@ four packages.
 
 ## Testing
 
-There is no automated test suite yet (no `*_test.go` files). Current manual testing
-procedure:
+There is no automated test suite yet (no `*_test.go` files) — see
+[Roadmap](#roadmap--known-limitations). Current manual testing procedure:
 
 1. Start the server: `go run ./server`.
 2. Connect two or more CLI/GUI clients and run `CONNECT <name>` on each.
